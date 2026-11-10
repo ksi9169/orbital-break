@@ -9,12 +9,16 @@
 - **프로젝트명**: 오비탈 브레이크: 궤도 폐쇄구역 (Orbital Break: Orbital Lockdown Sector)
 - **장르**: 4~6인 우주 심리 전술 카드 보드게임 (<뱅! BANG!> 원작 메커니즘의 11×11 그리드 전술 공간화)
 - **작업 경로**: `g:\내 드라이브\바이브 코딩\보드게임앱` (Google Drive 동기화)
+- **배포 및 저장소 환경**:
+  - **서비스 URL (Cloudflare Workers)**: `https://orbital-break.h1s.workers.dev`
+  - **GitHub 원격 저장소**: `https://github.com/ksi9169/orbital-break`
 - **주요 파일 구성**:
+  - `index.html` / `orbital_break_simulator_v0.8.html`: 브라우저 단일 파일 통합 시뮬레이터 (통계 시뮬레이션, **1인 플레이 테스트 모드**, 단일 경기 리플레이, 맵 커스텀 편집기, 규칙 해석·AI 모델)
   - `orbital_break_rulebook_v0.8.md`: v0.8 최신 공식 기본 규칙서 (534행, 80장 정규 덱 및 16인 캐릭터)
   - `orbital_break_bang_reference_v0.8.md`: 원작 <뱅!> 80장 덱 및 16인 캐릭터 공식 레퍼런스 데이터 (206행)
-  - `orbital_break_simulator_v0.8.html`: 브라우저 단일 파일 통합 시뮬레이터 (통계 시뮬레이션, **1인 플레이 테스트 모드**, 단일 경기 리플레이, 맵 커스텀 편집기, 규칙 해석·AI 모델)
+  - `wrangler.jsonc`, `.assetsignore`, `.gitignore`, `setup_new_pc.bat`, `deploy_all.bat`: Cloudflare Workers 및 GitHub 자동 배포·다중 PC 연동 구성 파일
+  - `favicon.svg`, `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`, `og-card.png`: 오픈 그래프(`1200×630`) 및 웹앱 아이콘 에셋
   - `scratch/`: 밸런스 테스트, 맵 최적화, DOM 및 플레이 모드 검증 자동화 스크립트 모음
-- **배포 상태**: 현재 로컬 웹 파일 구동 중 (GitHub 및 Cloudflare Workers 배포 준비 완료)
 
 ---
 
@@ -42,6 +46,12 @@
 4. **규칙서 v0.8 및 원작 <뱅!> 매핑 완비**
    - 2라운드 주기 맵 수축(4·6·8·10R), 11×11 비대칭 기본 맵, 80장 덱 및 16종 캐릭터 밸런스 체계 확립.
 
+5. **GitHub 및 Cloudflare Workers 자동 배포 완료**
+   - GitHub 원격 저장소(`https://github.com/ksi9169/orbital-break`) 생성 및 전체 소스 코드 푸시 완료.
+   - Cloudflare Workers(`https://orbital-break.h1s.workers.dev`) 정적 에셋 배포 완료 (`index.html`, `orbital_break_simulator_v0.8.html` 동기화).
+   - 카카오톡·클래스팅 등 링크 공유용 오픈 그래프 카드(`og-card.png` 1200×630) 및 아이콘(`favicon.svg`, `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`) 적용.
+   - 다중 PC 환경 설정 및 원클릭 배포 배치 스크립트(`setup_new_pc.bat`, `deploy_all.bat`) 구성 완료.
+
 ---
 
 ## 3. 핵심 설계 철학 및 결정 맥락
@@ -57,10 +67,8 @@
 ## 4. 다음 이어서 할 작업 (Next Steps)
 
 1. **1인 플레이 체감 피드백 반영 및 추가 튜닝**:
-   - 직접 플레이해 보면서 사거리 표시, AI 템포, 카드 사용 UX 중 보완할 점 튜닝
+   - 배포된 웹앱(`https://orbital-break.h1s.workers.dev`)에서 직접 플레이해 보면서 사거리 표시, AI 템포, 카드 사용 UX 중 보완할 점 튜닝
 2. **5인·6인 밸런스 패치 확정**:
    - 5인 사령관 내구도 보너스 조정 등 실전 플레이 및 시뮬레이션 결과 기반 최종 확정
 3. **실물 플레이테스트 PnP (Print & Play) 지원**:
    - 80장 카드 덱 및 11×11 보드판 인쇄용 템플릿 생성
-4. **온라인 배포**:
-   - 요청 시 GitHub 원격 저장소(`ksi9169/orbital-break`) 및 Cloudflare Workers(`orbital-break.h1s.workers.dev`) 배포 진행

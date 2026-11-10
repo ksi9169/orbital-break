@@ -5,7 +5,7 @@ echo [1/3] Syncing orbital_break_simulator_v0.8.html to index.html...
 copy /Y "orbital_break_simulator_v0.8.html" "index.html" >nul
 
 echo [2/3] Deploying to Cloudflare Workers (orbital-break.h1s.workers.dev)...
-call npx.cmd wrangler deploy
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$w = (Get-ChildItem \"$env:LOCALAPPDATA\npm-cache\_npx\*\node_modules\wrangler\bin\wrangler.js\" -ErrorAction SilentlyContinue | Select-Object -First 1).FullName; if ($w) { node $w deploy } else { npx.cmd wrangler deploy }"
 if %errorlevel% neq 0 (
     echo [ERROR] Cloudflare deployment failed.
     pause
