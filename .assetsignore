@@ -1,0 +1,11 @@
+.wrangler
+.git
+.github
+.gitignore
+node_modules
+scratch
+wrangler.jsonc
+desktop.ini
+*.bat
+*.md
+*.ps1
