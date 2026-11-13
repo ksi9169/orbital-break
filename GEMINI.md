@@ -8,7 +8,7 @@
 
 - **프로젝트명**: 오비탈 브레이크: 궤도 폐쇄구역 (Orbital Break: Orbital Lockdown Sector)
 - **장르**: 4~6인 우주 심리 전술 카드 보드게임 (<뱅! BANG!> 원작 메커니즘의 11×11 그리드 전술 공간화)
-- **작업 경로**: `g:\내 드라이브\바이브 코딩\보드게임앱` (Google Drive 동기화)
+- **작업 경로**: `C:\Users\com\Documents\바이브코딩\보드게임` (GitHub 중심 로컬 저장소 연동)
 - **배포 및 저장소 환경**:
   - **서비스 URL (Cloudflare Workers)**: `https://orbital-break.h1s.workers.dev`
   - **GitHub 원격 저장소**: `https://github.com/ksi9169/orbital-break`
@@ -51,6 +51,11 @@
    - Cloudflare Workers(`https://orbital-break.h1s.workers.dev`) 정적 에셋 배포 완료 (`index.html`, `orbital_break_simulator_v0.8.html` 동기화).
    - 카카오톡·클래스팅 등 링크 공유용 오픈 그래프 카드(`og-card.png` 1200×630) 및 아이콘(`favicon.svg`, `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`) 적용.
    - 다중 PC 환경 설정 및 원클릭 배포 배치 스크립트(`setup_new_pc.bat`, `deploy_all.bat`) 구성 완료.
+
+6. **AI 심리전 고도화 및 1인 플레이 승무원 상세 조회 패널 탑재**
+   - **AI 초반 탐색 및 전술 페르소나 분화**: 5·6인전 1~2라운드 보안팀의 무혐의 대상 선제 오인 사격·락다운·EMP 남발을 억제하고, 반란군을 `선봉 교란형`과 `잠복 암살형`으로 분화하여 초반 위장 파밍 후 결정타 기습을 가하도록 개선.
+   - **실시간 심리전 무전 및 공개 행적 배지**: 상황별 진실·블러핑 무전 배너(`#playRadioBar`), 토큰 말풍선(`💬`), 공개 행적 배지(`사령관 타격`, `사령관 지원`, `용의자 교전`, `센서 정찰`, `선제 교전`, `미교전 탐색`) 반영.
+   - **승무원 상세 정보 패널 (`#playInspectCard`)**: 1인 플레이에서 보드 위 토큰이나 하단 카드를 클릭하면 장착 장비(주무기·보조 모듈 상세 효과 및 유효 사거리), 내 위치와의 거리·사선 여부, 고유 능력, 공개 단서, 원클릭 `비공개 역할 보기` 토글을 즉시 확인 가능.
 
 ---
 

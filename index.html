@@ -2,7 +2,9 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d1117" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f3f5f8" media="(prefers-color-scheme: light)">
 <title>오비탈 브레이크 밸런스 시뮬레이터 v0.8</title>
 <meta name="description" content="11×11 그리드 궤도 폐쇄구역 우주 심리 전술 보드게임 — 1인 실전 플레이 모드, AI 몬테카를로 밸런스 시뮬레이션, 전술 리플레이, 실시간 맵 편집기">
 <meta property="og:type" content="website">
@@ -29,17 +31,18 @@
   :root{ --bg:#f3f5f8; --panel:#ffffff; --panel2:#eef1f5; --line:#d5dbe3; --text:#17202b; --muted:#5d6b7d;
     --sec:#1f78c1; --reb:#d3473a; --spy:#a97a00; --ok:#1f8a58; --core:#b7791f; --draw:#7d8896; }
 }
-*{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.5}
-button,select,input{font:inherit;color:inherit}
-.wrap{max-width:1120px;margin:0 auto;padding:12px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.5;-webkit-text-size-adjust:100%;text-size-adjust:100%;overflow-x:hidden}
+button,select,input,textarea{font:inherit;color:inherit}
+.wrap{max-width:1120px;margin:0 auto;padding:12px max(12px,env(safe-area-inset-right)) max(18px,env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
 header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:10px;padding:6px 0 12px;border-bottom:1px solid var(--line);margin-bottom:14px}
 h1{font-size:19px;margin:0;letter-spacing:-.02em;font-weight:800}
 h1 small{font-weight:500;color:var(--muted);font-size:12px;margin-left:6px}
 h2{font-size:15px;margin:0 0 2px;font-weight:700}
 .sub{color:var(--muted);font-size:12px;margin:0 0 10px}
-.tabs{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);padding:3px;border-radius:9px}
-.tabs button{border:0;background:none;padding:6px 12px;border-radius:6px;cursor:pointer;color:var(--muted);font-weight:600}
+.tabs{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);padding:3px;border-radius:9px;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{border:0;background:none;padding:6px 12px;border-radius:6px;cursor:pointer;color:var(--muted);font-weight:600;white-space:nowrap;flex-shrink:0;touch-action:manipulation}
 .tabs button.on{background:var(--panel2);color:var(--text);box-shadow:inset 0 0 0 1px var(--line)}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px}
 .grid{display:grid;gap:12px}
@@ -50,8 +53,9 @@ h2{font-size:15px;margin:0 0 2px;font-weight:700}
 @media(min-width:1000px){.ctl{grid-template-columns:repeat(4,1fr)}}
 label{display:block;font-size:12px;color:var(--muted);margin-bottom:3px}
 select,input[type=number]{width:100%;background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:7px 8px}
+select{-webkit-appearance:none;appearance:none;padding-right:26px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b98aa' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;background-size:12px}
 .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.btn{border:1px solid var(--line);background:var(--panel2);padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600}
+.btn{border:1px solid var(--line);background:var(--panel2);padding:8px 14px;border-radius:8px;cursor:pointer;font-weight:600;touch-action:manipulation}
 .btn.pri{background:var(--sec);border-color:var(--sec);color:#06121d}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .btn:focus-visible,select:focus-visible,.tabs button:focus-visible,input:focus-visible{outline:2px solid var(--sec);outline-offset:2px}
@@ -84,10 +88,10 @@ tr:last-child td{border-bottom:0}
 .hi{color:var(--reb);font-weight:700}.lo{color:var(--spy);font-weight:700}
 /* 히트맵 / 보드 */
 .seg{display:inline-flex;background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:2px}
-.seg button{border:0;background:none;padding:4px 10px;border-radius:5px;cursor:pointer;color:var(--muted);font-weight:600}
+.seg button{border:0;background:none;padding:4px 10px;border-radius:5px;cursor:pointer;color:var(--muted);font-weight:600;touch-action:manipulation}
 .seg button.on{background:var(--panel);color:var(--text);box-shadow:inset 0 0 0 1px var(--line)}
-.board{display:grid;grid-template-columns:repeat(11,1fr);gap:2px;background:var(--bg);padding:3px;border:1px solid var(--line);border-radius:8px;max-width:520px;margin:0 auto}
-.cell{aspect-ratio:1;border-radius:3px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;line-height:1.05;position:relative;border:1px solid transparent;overflow:hidden}
+.board{display:grid;grid-template-columns:repeat(11,minmax(0,1fr));gap:2px;background:var(--bg);padding:3px;border:1px solid var(--line);border-radius:8px;max-width:520px;margin:0 auto;touch-action:manipulation}
+.cell{aspect-ratio:1;border-radius:3px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;line-height:1.05;position:relative;border:1px solid transparent}
 .cell .g{opacity:.85;font-weight:700}
 .cell .v{font-size:8px;font-variant-numeric:tabular-nums;opacity:.95}
 .cell.wall{background:#222c39;color:#566478}
@@ -109,21 +113,21 @@ tr:last-child td{border-bottom:0}
 .pips i{width:100%;height:5px;border-radius:2px;background:var(--line)}
 .pips i.f{background:var(--ok)}
 .pc small{color:var(--muted)}
-.logbox{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;height:300px;overflow-y:auto;font-size:12px}
+.logbox{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;height:300px;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;font-size:12px}
 .logbox div{padding:1px 0}
 .l-turn{color:var(--text);font-weight:700;margin-top:6px;border-top:1px dashed var(--line);padding-top:4px}
 .l-combat{color:var(--reb)}.l-attack{color:#ffb4a8}.l-evade{color:#67d4e0}.l-death{color:var(--reb);font-weight:700}
 .l-core{color:var(--core)}.l-util{color:var(--muted)}.l-sys{color:var(--muted)}.l-win{color:var(--ok);font-weight:800}.l-move{color:var(--text);opacity:.8}
+.l-radio{color:#8ad8ff;font-weight:600;background:rgba(90,169,230,.08);padding:2px 6px!important;border-radius:4px;margin:2px 0}
 .rbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px}
 .rbar .info{margin-left:auto;font-size:12px;color:var(--muted)}
 .rules li{margin:0 0 7px}
 .rules ul{padding-left:18px;margin:6px 0 14px}
 .rules h3{font-size:13.5px;margin:14px 0 4px}
-.scroll{overflow-x:auto}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
 /* 맵 에디터 */
-.edit-board{user-select:none}
-.edit-board .cell{cursor:pointer;transition:transform .08s, outline-color .1s;user-select:none}
-.edit-board .cell:hover{outline:2px solid var(--sec);z-index:3;transform:scale(1.06)}
+.edit-board{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:none}
+.edit-board .cell{cursor:pointer;transition:transform .08s, outline-color .1s;-webkit-user-select:none;user-select:none}
 .tool-btn{display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:6px 8px;font-size:11.5px;font-weight:600}
 .tool-btn.on{background:var(--sec);color:#07111b;box-shadow:0 0 0 1px var(--sec);font-weight:800}
 .sym-btn.on{background:var(--sec);color:#07111b;font-weight:800}
@@ -137,12 +141,10 @@ tr:last-child td{border-bottom:0}
 .shrink-guides .cell[data-ring="4"]{box-shadow:inset 0 0 0 1px rgba(78,205,196,.5)}
 
 /* 1인 플레이 모드 */
-.play-board{user-select:none}
+.play-board{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .play-board .cell{transition:transform .1s, box-shadow .12s, background-color .12s}
 .play-board .cell.move-ok{box-shadow:inset 0 0 0 2px var(--ok);background:rgba(92,196,137,.18);cursor:pointer}
-.play-board .cell.move-ok:hover{background:rgba(92,196,137,.35);transform:scale(1.05);z-index:3}
 .play-board .cell.target-ok{box-shadow:inset 0 0 0 2px var(--reb);background:rgba(239,111,97,.22);cursor:pointer}
-.play-board .cell.target-ok:hover{background:rgba(239,111,97,.4);transform:scale(1.06);z-index:3}
 .play-board .cell.blast-preview{box-shadow:inset 0 0 0 2px var(--core);background:rgba(240,180,41,.28)}
 .tok.me{box-shadow:0 0 0 2.5px #fff, 0 0 8px var(--core)}
 .tok.act.me{box-shadow:0 0 0 2.5px var(--ok), 0 0 10px var(--ok)}
@@ -155,8 +157,8 @@ tr:last-child td{border-bottom:0}
 .prompt-box .pr-title{font-weight:800;font-size:13.5px;margin-bottom:6px}
 .prompt-box .pr-sub{font-size:12px;color:var(--muted);margin-bottom:8px}
 .hand-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:8px;margin-top:8px}
-.hcard{background:var(--panel2);border:1px solid var(--line);border-top-width:4px;border-radius:8px;padding:8px 10px;cursor:pointer;transition:transform .12s, box-shadow .12s, border-color .12s;display:flex;flex-direction:column;justify-content:space-between;min-height:84px;user-select:none;position:relative}
-.hcard:hover:not(.disabled){transform:translateY(-3px);box-shadow:0 4px 12px rgba(0,0,0,.3);border-color:var(--sec)}
+.hcard{background:var(--panel2);border:1px solid var(--line);border-top-width:4px;border-radius:8px;padding:8px 10px;cursor:pointer;transition:transform .12s, box-shadow .12s, border-color .12s;display:flex;flex-direction:column;justify-content:space-between;min-height:84px;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation;position:relative}
+.hcard:active:not(.disabled),.btn:active:not(:disabled){transform:scale(.98)}
 .hcard.selected{outline:2px solid var(--core);transform:translateY(-3px);background:rgba(240,180,41,.12)}
 .hcard.disabled{opacity:.48;cursor:not-allowed}
 .hcard .hc-top{display:flex;justify-content:space-between;align-items:center;gap:4px;margin-bottom:4px}
@@ -164,8 +166,55 @@ tr:last-child td{border-bottom:0}
 .hcard .hc-tag{font-size:10px;padding:1px 5px;border-radius:4px;background:var(--panel);color:var(--muted);font-weight:700}
 .hcard .hc-desc{font-size:11px;color:var(--muted);line-height:1.35}
 .pc.me-card{box-shadow:inset 0 0 0 1px var(--core);background:rgba(240,180,41,.06)}
+.pc.inspected{outline:2px solid var(--sec);background:rgba(90,169,230,.09)}
+.tok.inspected{outline:2.5px solid #fff;outline-offset:1px}
+.tok .tok-chat{position:absolute;left:-4px;top:-5px;font-size:9px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.7));pointer-events:none}
 .intel-tag{display:inline-block;margin-top:3px;padding:1px 6px;border-radius:4px;background:rgba(193,156,255,.16);color:#c19cff;font-size:10.5px;font-weight:600}
+.pub-badges{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.pub-tag{display:inline-block;padding:1px 6px;border-radius:4px;font-size:10px;font-weight:700;background:var(--panel);border:1px solid var(--line);color:var(--muted)}
+.pub-tag.reb{background:rgba(239,111,97,.15);border-color:rgba(239,111,97,.45);color:var(--reb)}
+.pub-tag.sec{background:rgba(92,196,137,.15);border-color:rgba(92,196,137,.45);color:var(--ok)}
+.pub-tag.spy{background:rgba(240,180,41,.15);border-color:rgba(240,180,41,.45);color:var(--core)}
+.pub-tag.info{background:rgba(90,169,230,.15);border-color:rgba(90,169,230,.45);color:var(--sec)}
+.radio-bar{display:flex;align-items:center;gap:8px;padding:7px 10px;margin-bottom:8px;border-radius:7px;background:rgba(90,169,230,.09);border:1px solid rgba(90,169,230,.32);font-size:12px;min-height:34px}
+.radio-bar.warn{background:rgba(239,111,97,.11);border-color:rgba(239,111,97,.4)}
+.radio-bar.ok{background:rgba(92,196,137,.11);border-color:rgba(92,196,137,.4)}
+.radio-bar .rb-who{font-weight:800;white-space:nowrap;color:var(--sec)}
+.radio-bar.warn .rb-who{color:var(--reb)}
+.radio-bar.ok .rb-who{color:var(--ok)}
+.radio-bar .rb-txt{color:var(--text);font-weight:500;overflow:hidden;text-overflow:ellipsis}
+.inspect-card{border:1.5px solid var(--sec);background:var(--panel)}
+.insp-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding-bottom:8px;border-bottom:1px solid var(--line);margin-bottom:10px}
+.insp-title{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:800;font-size:14.5px}
+.insp-role-pill{padding:2px 8px;border-radius:999px;font-size:11.5px;font-weight:800;border:1px solid var(--line);background:var(--panel2)}
+.insp-grid{display:grid;grid-template-columns:1fr;gap:8px}
+@media(min-width:520px){.insp-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.insp-box{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12px}
+.insp-box .ib-lbl{font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px;display:flex;justify-content:space-between;align-items:center}
+.insp-eq{display:flex;flex-direction:column;gap:5px}
+.insp-eq-item{padding:5px 7px;border-radius:6px;background:var(--panel);border:1px solid var(--line)}
+.insp-eq-item b{display:block;font-size:12px}
+.insp-eq-item span{display:block;font-size:11px;color:var(--muted)}
+.btn-xs{padding:4px 9px;font-size:11.5px;border-radius:6px}
 .play-board .cell.aim-preview{box-shadow:inset 0 0 0 2px #f0b429;background:rgba(240,180,41,.18) !important}
+@media (hover: hover) and (pointer: fine){
+  .edit-board .cell:hover{outline:2px solid var(--sec);z-index:3;transform:scale(1.06)}
+  .play-board .cell.move-ok:hover{background:rgba(92,196,137,.35);transform:scale(1.05);z-index:3}
+  .play-board .cell.target-ok:hover{background:rgba(239,111,97,.4);transform:scale(1.06);z-index:3}
+  .hcard:hover:not(.disabled){transform:translateY(-3px);box-shadow:0 4px 12px rgba(0,0,0,.3);border-color:var(--sec)}
+}
+@media (hover: none) and (pointer: coarse), (max-width: 640px){
+  h1{font-size:17px}
+  h1 small{display:block;margin-left:0;margin-top:2px}
+  .card{padding:11px}
+  select,input[type=number],#txtMapIO{font-size:16px!important}
+  .cell{font-size:9px}
+  .cell .v{font-size:7px}
+  .tok{font-size:9.5px;width:82%}
+  .tok::after{font-size:7.5px;right:-2px;bottom:-2px;padding:0 1.5px;line-height:10px}
+  .hand-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rbar .info{width:100%;margin-left:0}
+}
 
 </style>
 </head>
@@ -290,7 +339,7 @@ tr:last-child td{border-bottom:0}
 
   <div class="card">
     <h2>카드 사용 현황</h2>
-    <p class="sub">사용률이 낮은 순서입니다. 매수는 80장 덱 기준 장수이며, 정리 폐기는 손패 한도 때문에 버려진 비율, 비용 폐기는 부스터·봄버 능력 등에 낸 비율입니다.</p>
+    <p class="sub">사용률이 낮은 순서입니다. 매수는 80장 덱 기준 장수이며, 정리 폐기는 손패 한도 때문에 버려진 비율, 비용 폐기는 의무실·봄버·메딕 능력 등에 낸 비율입니다.</p>
     <div class="scroll"><table id="tCard"></table></div>
   </div>
 
@@ -367,6 +416,7 @@ tr:last-child td{border-bottom:0}
           <div class="p-title" id="playPhaseTitle">새 게임을 시작하세요</div>
           <div class="p-meta" id="playPhaseMeta"></div>
         </div>
+        <div class="radio-bar hidden" id="playRadioBar"></div>
         <div class="board play-board" id="playBoard"></div>
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;margin-top:8px">
           <div class="key" style="margin:0">
@@ -376,13 +426,15 @@ tr:last-child td{border-bottom:0}
             <span style="color:var(--muted)">● 미확인 승무원</span>
             <span>💣 양자 지뢰</span>
           </div>
-          <span id="playHoverInfo" style="font-size:11.5px;color:var(--muted);font-weight:600">칸 위에 마우스를 올리면 좌표와 거리를 표시합니다</span>
+          <span id="playHoverInfo" style="font-size:11.5px;color:var(--muted);font-weight:600">보드 위 승무원이나 하단 카드를 누르면 역할과 장착 장비를 조회합니다</span>
         </div>
       </div>
 
+      <div class="card inspect-card hidden" id="playInspectCard"></div>
+
       <div class="card">
         <h2>전체 승무원 현황</h2>
-        <p class="sub" style="margin-bottom:8px">실전 시야에서는 보안사령관과 탈락자 외 승무원의 정체가 숨겨집니다.</p>
+        <p class="sub" style="margin-bottom:8px">승무원 카드를 선택하면 상세 정보와 장착 장비를 확인할 수 있습니다.</p>
         <div class="hud" id="playHud"></div>
       </div>
     </div>
@@ -471,7 +523,7 @@ tr:last-child td{border-bottom:0}
         </div>
         <div class="board edit-board shrink-guides" id="editBoard"></div>
         <div class="note" style="margin-top:8px">
-          💡 <b>사용법:</b> 마우스 클릭 또는 드래그로 타일을 칠합니다. 우클릭 시 해당 칸이 <b>일반 통로</b>로 변경됩니다.
+          💡 <b>사용법:</b> 클릭·터치 또는 드래그로 타일을 칠합니다. PC 우클릭 또는 지우개 도구 선택 시 <b>일반 통로</b>로 변경됩니다.
         </div>
         
         <!-- 지형 현황 카운터 -->
@@ -582,13 +634,6 @@ const TERRAIN = (function () {
   put([[2, 7], [3, 4], [6, 8], [7, 3]], 'COVER');
   return g;
 })();
-function setTiles(swapped) {
-  for (let r = 0; r < SIZE; r++) for (let c = 0; c < SIZE; c++) if (TERRAIN[r][c] === 'WEAPON' || TERRAIN[r][c] === 'MED') TERRAIN[r][c] = 'N';
-  const W = swapped ? [[3, 4], [4, 2], [6, 8], [7, 6]] : [[2, 6], [4, 7], [6, 3], [8, 4]];
-  const M = swapped ? [[2, 6], [4, 7], [6, 3], [8, 4]] : [[3, 4], [4, 2], [6, 8], [7, 6]];
-  W.forEach(([r, c]) => { TERRAIN[r][c] = 'WEAPON'; });
-  M.forEach(([r, c]) => { TERRAIN[r][c] = 'MED'; });
-}
 const SPAWNS = [[5, 0], [8, 9], [9, 2], [1, 2], [0, 7], [3, 10]];
 const SPAWN_LABEL = ['(6,1)', '(9,10)', '(10,3)', '(2,3)', '(1,8)', '(4,11)'];
 
@@ -657,11 +702,68 @@ function mulberry32(seed) {
   };
 }
 
-/* AI 튜닝 상수 */
+/* AI 튜닝 상수 및 재사용 버퍼 */
 const AI = { atk: 0.95, danger: 1.15, noise: 0.35 };
+const PERSONA_KO = {
+  COMMAND: '통제 지휘형',
+  GUARDIAN: '호위 수색형',
+  VANGUARD: '선봉 교란형',
+  AMBUSH: '잠복 암살형',
+  INFILTRATOR: '위장 공작형'
+};
+const RADIO_POOL = {
+  EXPLORE_WEAPON: [
+    '아직 피아 식별 전이다. 무장부터 확보하겠다.',
+    '무기고 보급을 챙긴다. 섣불리 다가오지 마라.',
+    '누구도 믿을 수 없군. 장비부터 갖춰 두지.'
+  ],
+  EXPLORE_SENSOR: [
+    '센서실 기록을 대조해 보겠다. 수상한 자가 있어.',
+    '손패 스캔으로 누가 적성 패를 숨겼는지 가려내지.'
+  ],
+  EXPLORE_HOLD: [
+    '경거망동하지 마라. 먼저 방아쇠를 당기는 자가 적이다.',
+    '엄폐 위치를 선점하고 움직임을 지켜보겠다.'
+  ],
+  AMBUSH_BREAK: [
+    '위장은 끝났다. 사령관, 여기서 끝내주지!',
+    '기다리고 있었다... 지금이다, 사령관을 쳐라!',
+    '방심했군 사령관! 작전 개시!'
+  ],
+  HIT_CMD: [
+    '표적 포착! 사령관을 무력화한다!',
+    '포위망을 좁혀라! 사령관을 끝낸다!'
+  ],
+  CMD_ALERT: [
+    '적성 반응 확인! 반란군을 즉시 제압하라!',
+    '본색을 드러냈군! 보안팀, 사격 개시!'
+  ],
+  PROTEST: [
+    '오인 사격이다! 난 보안팀이라고!',
+    '정신 차려! 엉뚱한 아군을 쏘고 있잖아!',
+    '날 치면 사령관만 위험해진다! 진짜 적을 봐!'
+  ],
+  HIT_SUSPECT: [
+    '반란 용의자 교전 개시! 빠져나갈 수 없다!',
+    '사령관을 노린 대가다. 무기를 내려놔라!'
+  ],
+  HELP_CMD: [
+    '사령관, 긴급 지원 완료했습니다! 버티십시오!',
+    '보안 프로토콜 복구 완료! 엄호하겠습니다!'
+  ],
+  SPY_REVEAL: [
+    '방해꾼들은 모두 치워졌군. 이제 기지는 내 차지다.',
+    '수고했어 사령관. 마지막 정리를 시작하지.'
+  ]
+};
+const BASE_DECK = [];
+CARD_SPECS.forEach(s => { for (let i = 0; i < s.count; i++) BASE_DECK.push(s); });
+const _reachDist = new Int16Array(SIZE * SIZE * 2);
+const _reachSeen = new Uint8Array(SIZE * SIZE);
+const _reachBuckets = Array.from({ length: 12 }, () => []);
 
 class Match {
-  constructor(o = {}) {
+  constructor(o = {}, seedArg) {
     this.n = o.players || 4;
     this.shrinkStart = o.shrinkStart == null ? 4 : o.shrinkStart;
     this.shrinkEvery = o.shrinkEvery == null ? 2 : o.shrinkEvery;
@@ -686,21 +788,28 @@ class Match {
     this.lastShrink = this.shrinkStart + 3 * this.shrinkEvery;
     this.suddenFrom = this.lastShrink + 1;
     this.cmdImmune = o.cmdImmune == null ? (this.immuneRounds > 0) : o.cmdImmune;
+    this.r1Peace = o.r1Peace == null ? true : !!o.r1Peace;
     this.suddenDeath = o.suddenDeath == null ? true : o.suddenDeath;
     this.drawRule = o.drawRule || '2';
-    this.seed = (o.seed == null ? Math.floor(Math.random() * 4294967296) : o.seed) >>> 0;
+    const rawSeed = seedArg !== undefined ? seedArg : o.seed;
+    this.seed = (rawSeed == null ? Math.floor(Math.random() * 4294967296) : rawSeed) >>> 0;
     this.rng = mulberry32(this.seed);
     this.doLog = !!o.log;
     this.logs = [];
+    this.radios = {};
+    this.lastRadio = null;
+    this._spyCache = null;
 
     this.round = 1; this.turn = 0; this.turnCount = 0;
     this.over = false; this.winner = null; this.finalRound = null;
     this.firstDeathRound = null;
     this.closed = Array.from({ length: SIZE }, () => Array(SIZE).fill(false));
     this.mines = [];
-    this.deck = []; this.discard = [];
+    this.discard = [];
     this.cs = {};
-    CARD_SPECS.forEach(s => { this.cs[s.name] = { drawn: 0, used: 0, cleanup: 0, cost: 0, death: 0 }; });
+    for (let i = 0; i < CARD_SPECS.length; i++) {
+      this.cs[CARD_SPECS[i].name] = { drawn: 0, used: 0, cleanup: 0, cost: 0, death: 0 };
+    }
     this.heat = { visit: new Int32Array(SIZE * SIZE), combat: new Int32Array(SIZE * SIZE), death: new Int32Array(SIZE * SIZE) };
     this.deathCause = {};
     this.heal = { patch: 0, core: 0, med: 0, react: 0 };
@@ -708,34 +817,57 @@ class Match {
     this.patchFull = 0;
     this.ev = { rebel: new Array(this.n + 1).fill(0), sec: new Array(this.n + 1).fill(0) };
 
-    CARD_SPECS.forEach(s => { for (let i = 0; i < s.count; i++) this.deck.push(s); });
-    this.deck = this.shuffle(this.deck);
+    this.deck = this.shuffle(BASE_DECK);
     this.setupPlayers();
   }
 
   /* ---------- 유틸 ---------- */
   rand() { return this.rng(); }
-  canHeal() { let n = 0; for (const p of this.players) if (p.alive) n++; return n > 2; }
+  aliveCount() { let n = 0; for (let i = 0; i < this.players.length; i++) if (this.players[i].alive) n++; return n; }
+  canHeal() { return this.aliveCount() > 2; }
   coreOn() { return this.round < this.lastShrink; }
   d6() { return 1 + Math.floor(this.rng() * 6); }
-  hasMineAt(r, c) { return this.mines.some(m => m.r === r && m.c === c); }
+  hasMineAt(r, c) { for (let i = 0; i < this.mines.length; i++) if (this.mines[i].r === r && this.mines[i].c === c) return true; return false; }
+  countHand(p, type) { let n = 0; const h = p.hand; for (let i = 0; i < h.length; i++) if (h[i].type === type) n++; return n; }
+  hasHand(p, type) { const h = p.hand; for (let i = 0; i < h.length; i++) if (h[i].type === type) return true; return false; }
   shuffle(a) {
     a = a.slice();
     for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(this.rng() * (i + 1)); const t = a[i]; a[i] = a[j]; a[j] = t; }
     return a;
   }
   log(msg, cls) { if (this.doLog) this.logs.push({ t: msg, c: cls || '', r: this.round }); }
+  emitRadio(p, key, tone, force) {
+    if (!this.doLog || !p || !p.alive || p.isHuman) return;
+    if (!force && p._radioTc === this.turnCount) return;
+    const list = RADIO_POOL[key];
+    if (!list || !list.length) return;
+    const h = ((this.seed ^ Math.imul(this.turnCount + 1, 2654435761) ^ Math.imul(p.id, 40503)) >>> 0);
+    if (!force && (h % 100) >= 48) return;
+    const text = list[h % list.length];
+    p._radioTc = this.turnCount;
+    const entry = { pid: p.id, name: 'P' + p.id + ' ' + p.ch.key, text, round: this.round, tc: this.turnCount, tone: tone || 'norm' };
+    this.radios[p.id] = entry;
+    this.lastRadio = entry;
+    this.logs.push({ t: '💬 ' + this.pn(p) + ': "' + text + '"', c: 'radio', r: this.round });
+  }
   idx(r, c) { return r * SIZE + c; }
   inb(r, c) { return r >= 0 && c >= 0 && r < SIZE && c < SIZE; }
   isWall(r, c) { return !this.inb(r, c) || TERRAIN[r][c] === 'WALL' || this.closed[r][c]; }
   playerAt(r, c, exceptId) {
-    for (const p of this.players) if (p.alive && p.id !== exceptId && p.r === r && p.c === c) return p;
+    for (let i = 0; i < this.players.length; i++) {
+      const p = this.players[i];
+      if (p.alive && p.id !== exceptId && p.r === r && p.c === c) return p;
+    }
     return null;
   }
   pn(p) { return 'P' + p.id + '(' + p.ch.key + ')'; }
   canHostile(a, b) {
     if (this.round <= this.immuneRounds && this.cmdImmune && (a.role === 'COMMANDER' || b.role === 'COMMANDER')) return false;
     return true;
+  }
+  isCmdProtected(att, tgt) {
+    if (!this.canHostile(att, tgt)) return true;
+    return this.r1Peace && this.round === 1 && tgt.role === 'COMMANDER';
   }
 
   setupPlayers() {
@@ -750,16 +882,42 @@ class Match {
       const baseHp = ch.key === '거너' ? this.gunnerHp : ch.key === '스나이퍼' ? this.sniperHp : ch.key === '디펜더' ? this.defHp : ch.hp;
       const maxHp = baseHp + (role === 'COMMANDER' ? this.cmdBonus : 0) + (role === 'REBEL' ? this.rebelHp : 0) + (role === 'AGENT' ? this.agentHp : 0);
       const sp = SPAWNS[spawns[i]];
+      const persona = role === 'COMMANDER' ? 'COMMAND' : role === 'AGENT' ? 'GUARDIAN' : role === 'SPY' ? 'INFILTRATOR' : 'VANGUARD';
       const p = {
         id: i + 1, role, ch, maxHp, hp: maxHp, r: sp[0], c: sp[1], spawn: spawns[i] + 1,
         hand: [], weapon: null, alive: true, kills: 0, dmg: 0, deathRound: 0, cause: '',
-        hurtBy: new Set(), known: {}, modules: [], cuffed: false, onCoreLast: false, enteredCore: false, scan: {}, facRound: {}, startR: sp[0], startC: sp[1]
+        hurtBy: new Set(), known: {}, modules: [], cuffed: false, onCoreLast: false, enteredCore: false, scan: {}, facRound: {}, startR: sp[0], startC: sp[1],
+        persona, ambush: false, ambushBroke: false, susp: new Float64Array(this.n + 2),
+        pub: { hitCmd: 0, helpedCmd: 0, hitSus: 0, hitAny: 0, scan: 0 }, _radioTc: -1, _protestR: 0, _spyRev: false
       };
       this.players.push(p);
+    }
+    // 반란군 중 최소 1명은 초반 위장·파밍 후 결정타를 노리는 잠복 암살형(AMBUSH)으로 배정
+    const rebels = this.players.filter(x => x.role === 'REBEL');
+    if (rebels.length >= 2) {
+      const pickIdx = (this.seed >>> 4) % rebels.length;
+      rebels[pickIdx].persona = 'AMBUSH';
+      rebels[pickIdx].ambush = true;
     }
     const spies = this.players.filter(x => x.role === 'SPY');
     if (this.spiesKnow) spies.forEach(a => spies.forEach(b => { if (a !== b) a.known[b.id] = 'SPY'; }));
     this.players.forEach(p => { for (let k = 0; k < p.maxHp; k++) this.drawCard(p); });
+  }
+
+  updateAmbush(p) {
+    if (!p || !p.ambush || p.isHuman) return;
+    const cmd = this.players[0];
+    if (!cmd || !cmd.alive) { p.ambush = false; return; }
+    const hasHeavy = !!(p.weapon && (p.weapon.name === '플라즈마 샷건' || p.weapon.burst || p.weapon.range >= 4))
+      || this.hasHand(p, 'GRENADE') || this.hasHand(p, 'GRAB') || this.hasHand(p, 'HACK')
+      || (p.ch.key === '봄버' && this.countHand(p, 'ATTACK') >= 1 && p.hand.length >= 3)
+      || (p.ch.key === '거너' && this.countHand(p, 'ATTACK') >= 2 && manh(p.r, p.c, cmd.r, cmd.c) <= 2);
+    const cmdHurt = cmd.hp < cmd.maxHp;
+    const exposed = this.ev.rebel[p.id] >= 1.5 || p.hurtBy.has(cmd.id) || (p.hurtBy.size > 0 && p.hp <= 2);
+    if (this.round >= 4 || exposed || cmd.hp <= 3 || (this.round >= 2 && (hasHeavy || (cmdHurt && this.countHand(p, 'ATTACK') >= 2))) || (this.round >= 3 && (cmdHurt || p.hand.length > p.hp))) {
+      p.ambush = false;
+      p.ambushBroke = true;
+    }
   }
 
   hasModule(p, name) {
@@ -792,14 +950,14 @@ class Match {
     return i;
   }
   countEvadeCards(tgt) {
-    let n = tgt.hand.filter(c => c.type === 'EVADE').length;
-    if (tgt.ch.key === '스위처' && tgt.switcherRound !== this.round && tgt.hand.some(c => c.type === 'ATTACK')) n += 1;
+    let n = this.countHand(tgt, 'EVADE');
+    if (tgt.ch.key === '스위처' && tgt.switcherRound !== this.round && this.hasHand(tgt, 'ATTACK')) n += 1;
     return n;
   }
-  useCard(p, i) {
+  useCard(p, i, asConvert = false) {
     const c = p.hand.splice(i, 1)[0];
     if (p && p.ch.key === '스위처') {
-      if ((c.type === 'ATTACK' && this.players[this.turn] !== p) || (c.type === 'EVADE' && this.players[this.turn] === p && this.inAttackConvert)) {
+      if (asConvert || (c.type === 'ATTACK' && this.players[this.turn] !== p) || (c.type === 'EVADE' && this.players[this.turn] === p && this.inAttackConvert)) {
         p.switcherRound = this.round;
       }
     }
@@ -849,9 +1007,8 @@ class Match {
     if (idx < 0 || idx >= p.hand.length) return 99;
     const c = p.hand[idx];
     let v = this.cardValue(p, c);
-    const sameIdx = [];
-    for (let j = 0; j < p.hand.length; j++) if (p.hand[j].type === c.type) sameIdx.push(j);
-    const order = sameIdx.indexOf(idx);
+    let order = 0;
+    for (let j = 0; j < idx; j++) if (p.hand[j].type === c.type) order++;
     const unl = !!(p.weapon && p.weapon.burst);
     const maxLasers = (p.ch.key === '버서커' && p.hp <= 2) ? 2 : (p.ch.key === '봄버' ? 2 : 1);
     if (c.type === 'ATTACK' && !unl && order >= maxLasers) v -= (p.ch.key === '거너' ? 0.35 : 0.75) * (order - maxLasers + 1);
@@ -874,7 +1031,7 @@ class Match {
       const i = this.lowestIdx(p, -1);
       const c = this.discardCard(p, i, 'cleanup');
       if (c.type === 'HEAL' && p.hp >= p.maxHp) this.patchFull++;
-      this.log(this.pn(p) + ' 정리 단계: [' + c.name + '] 폐기', 'util');
+      if (this.doLog) this.log(this.pn(p) + ' 정리 단계: [' + c.name + '] 폐기', 'util');
     }
   }
 
@@ -929,7 +1086,14 @@ class Match {
   }
 
   /* ---------- AI: 표적 가중치 (공개 정보만 사용) ---------- */
-  othersAlive() { return this.players.filter(p => p.alive && p.role !== 'SPY' && p.role !== 'COMMANDER').length; }
+  othersAlive() {
+    let n = 0;
+    for (let i = 0; i < this.players.length; i++) {
+      const x = this.players[i];
+      if (x.alive && x.role !== 'SPY' && x.role !== 'COMMANDER') n++;
+    }
+    return n;
+  }
   /* 스파이 판단: 사령관이 최종 대치에서 이기기 어려울 만큼 강한가
    - 반란군/요원이 살아있는데 사령관 HP가 2 이하로 위태로우면 사령관 사망(반란군 승리)을 막기 위해 false
    - 사령관 HP가 4 이상이거나 스파이보다 2 이상 높아 1:1 대치가 불리할 때 true */
@@ -938,8 +1102,131 @@ class Match {
     if (this.othersAlive() > 0 && cmd.hp <= 2) return false;
     return cmd.hp >= 4 || (cmd.hp >= p.hp + 2 && cmd.hp >= 3);
   }
+  /* 5·6인전 스파이 표적 가중치: 6인 초반 수적 우세 반란군 견제 → 5인 이하 진입 시 공개 정체 소거법 + 시소 밸런싱 */
+  spySeesawTargetWeight(p, t) {
+    if (p.known[t.id] === 'SPY') return 0.05;
+    const evSeq = this._evSeq || 0;
+    const healSum = this.heal.patch + this.heal.med + this.heal.core;
+    const handFull = p.hand.length > p.hp ? 1 : 0;
+    let sc = this._spyCache;
+    if (!sc || sc.pid !== p.id || sc.tc !== this.turnCount || sc.dmg !== this.dmgTotal || sc.ev !== evSeq || sc.hp !== p.hp || sc.hs !== healSum || sc.hf !== handFull) {
+      const cmd = this.players[0];
+      const nPlayers = this.players.length;
+      const weights = sc ? sc.weights : new Float64Array(8);
+      weights.fill(0.05);
+      const others = [];
+      let deadAgents = 0, deadRebels = 0;
+      for (let i = 0; i < nPlayers; i++) {
+        const x = this.players[i];
+        if (!x.alive) {
+          if (x.revealed && x.role === 'AGENT') deadAgents++;
+          else if (x.revealed && x.role === 'REBEL') deadRebels++;
+        } else if (x !== p && x !== cmd && p.known[x.id] !== 'SPY') {
+          others.push(x);
+        }
+      }
+      if (others.length === 0) {
+        for (let i = 0; i < nPlayers; i++) {
+          const x = this.players[i];
+          weights[x.id] = x === cmd ? 8.0 : (p.known[x.id] === 'SPY' ? 0.05 : 3.0);
+        }
+      } else {
+        const is6p = nPlayers === 6;
+        const initAgents = 1;
+        const initRebels = is6p ? (this.spies6 === 2 ? 2 : 3) : 2;
+        const remainAgents = Math.max(0, initAgents - deadAgents);
+        const remainRebels = Math.max(0, initRebels - deadRebels);
+
+        if (is6p && remainRebels >= 3) {
+          weights[cmd.id] = 0.02;
+          for (let i = 0; i < others.length; i++) {
+            const o = others[i];
+            const kr = p.known[o.id];
+            if (kr === 'AGENT') { weights[o.id] = 0.05; continue; }
+            if (kr === 'REBEL') { weights[o.id] = 4.5; continue; }
+            const er = this.ev.rebel[o.id], es = this.ev.sec[o.id];
+            let w = 1.15 + er * 2.4 - es * 0.8;
+            if (p.hurtBy.has(o.id) && es < 1.5) w += 2.2;
+            weights[o.id] = Math.max(0.05, w);
+          }
+        } else {
+          let rebelSusCnt = 0, agentSusCnt = 0;
+          for (let i = 0; i < others.length; i++) {
+            const o = others[i];
+            if (p.known[o.id] === 'REBEL' || this.ev.rebel[o.id] >= 2.0) rebelSusCnt++;
+            if (p.known[o.id] === 'AGENT' || (this.ev.sec[o.id] >= 1.5 && this.ev.rebel[o.id] < 2.0)) agentSusCnt++;
+          }
+          const guess = new Array(8);
+          let secPower = cmd.alive ? cmd.hp : 0;
+          let rebPower = 0;
+          const totRem = remainAgents + remainRebels || 1;
+          for (let i = 0; i < others.length; i++) {
+            const o = others[i];
+            const isRebSus = p.known[o.id] === 'REBEL' || this.ev.rebel[o.id] >= 2.0;
+            const isAgtSus = p.known[o.id] === 'AGENT' || (this.ev.sec[o.id] >= 1.5 && this.ev.rebel[o.id] < 2.0);
+            let g;
+            if (p.known[o.id]) g = p.known[o.id];
+            else if (remainAgents === 0) g = 'REBEL';
+            else if (remainRebels === 0) g = 'AGENT';
+            else if (this.ev.rebel[o.id] >= 2.0) g = 'REBEL';
+            else if (this.ev.sec[o.id] >= 1.5) g = 'AGENT';
+            else if (rebelSusCnt >= remainRebels && !isRebSus) g = 'AGENT';
+            else if (agentSusCnt >= remainAgents && !isAgtSus) g = 'REBEL';
+            else g = 'UNKNOWN';
+            guess[o.id] = g;
+            if (g === 'AGENT') secPower += o.hp + 1.0;
+            else if (g === 'REBEL') rebPower += o.hp;
+            else {
+              secPower += o.hp * (remainAgents / totRem);
+              rebPower += o.hp * (remainRebels / totRem);
+            }
+          }
+          const cmdDanger = cmd.hp <= (is6p && remainRebels >= 2 ? 3 : 2);
+          if (cmdDanger) weights[cmd.id] = 0.01;
+          else if (others.length === 1 && cmd.hp >= 4) weights[cmd.id] = 3.6;
+          else if (cmd.hp >= 4 && secPower >= rebPower + (is6p ? 2.5 : 0)) weights[cmd.id] = handFull ? 2.2 : 1.0;
+          else weights[cmd.id] = 0.05;
+
+          const agentTargetMode = !cmdDanger && remainAgents > 0 && cmd.hp >= (is6p ? 4 : 3) && secPower >= rebPower + (is6p ? 2.5 : -1.0);
+          for (let i = 0; i < others.length; i++) {
+            const o = others[i];
+            const g = guess[o.id];
+            const er = this.ev.rebel[o.id], es = this.ev.sec[o.id];
+            let w = 0.15;
+            if (others.length === 1) {
+              w = (cmd.hp >= 4 && g === 'REBEL' && o.hp >= 2) ? 0.35 : 4.8;
+            } else if (cmdDanger) {
+              if (g === 'REBEL') w = 4.5;
+              else if (g === 'AGENT') w = 0.05;
+              else w = 0.5 + er * 2.4 - es * 0.5;
+            } else if (agentTargetMode) {
+              if (g === 'AGENT') w = 4.4;
+              else if (g === 'REBEL') w = 0.06;
+              else w = handFull ? 0.85 : (0.10 + es * 2.0);
+            } else {
+              if (g === 'REBEL') w = 3.6;
+              else if (g === 'AGENT') w = 0.10;
+              else w = handFull ? 0.95 : (0.25 + er * 1.8);
+            }
+            if (w > 0.25 && p.hurtBy.has(o.id) && p.hp <= 2) w += 1.0;
+            weights[o.id] = Math.max(0.05, w);
+          }
+        }
+      }
+      sc = { pid: p.id, tc: this.turnCount, dmg: this.dmgTotal, ev: evSeq, hp: p.hp, hs: healSum, hf: handFull, weights };
+      this._spyCache = sc;
+    }
+    return sc.weights[t.id];
+  }
   targetWeight(p, t) {
+    if (p.role === 'SPY' && this.players.length >= 5 && this.spyAIMode === 'classic') {
+      return this.spySeesawTargetWeight(p, t);
+    }
     const er = this.ev.rebel[t.id], es = this.ev.sec[t.id];
+    const privSus = p.susp ? p.susp[t.id] : 0;
+    const cmd = this.players[0];
+    const crowdSus = (this.round >= 2 && cmd && cmd.alive && t !== cmd && es === 0 && manh(t.r, t.c, cmd.r, cmd.c) <= 1) ? 0.35 : 0;
+    const effEr = er + privSus + crowdSus;
     let w;
     const kr = p.known[t.id];
     if (kr) {
@@ -947,33 +1234,47 @@ class Match {
       else if (p.role === 'REBEL') w = kr === 'REBEL' ? 0.05 : kr === 'SPY' ? 1.2 : 2.2;
       else if (this.spyAIMode === 'classic') w = kr === 'SPY' ? 0.05 : kr === 'REBEL' ? 1.8 : 1.3;
       else if (this.othersAlive() === 0) w = kr === 'COMMANDER' ? 8 : (kr === 'SPY' ? 0.05 : 3.0);
-      else if (this.spyCmdStrong(p, this.players[0])) w = kr === 'SPY' ? 0.05 : kr === 'REBEL' ? 0.6 : 2.6;   // 사령관이 강하면 보안팀(요원) 견제
-      else w = kr === 'SPY' ? 0.05 : kr === 'REBEL' ? 2.8 : (kr === 'COMMANDER' ? 0.01 : 0.4);                // 사령관이 약하면 반란군 집중 제거
+      else if (this.spyCmdStrong(p, cmd)) w = kr === 'SPY' ? 0.05 : kr === 'REBEL' ? 0.6 : 2.6;
+      else w = kr === 'SPY' ? 0.05 : kr === 'REBEL' ? 2.8 : (kr === 'COMMANDER' ? 0.01 : 0.4);
       if (w > 0.1 && p.hurtBy.has(t.id)) w += 2.5;
       return w;
     }
     switch (p.role) {
-      case 'COMMANDER': w = 0.55 + er * 2.2 - es * 0.25; break;
+      case 'COMMANDER':
+        if (this.n >= 5 && this.round <= 2 && effEr < 0.35 && !p.hurtBy.has(t.id)) {
+          w = p.hand.length > p.hp ? 0.36 : (this.round === 1 ? 0.06 : 0.16);
+        } else {
+          w = (this.n === 4 ? 0.62 : 0.48) + effEr * 2.25 - es * 0.32;
+        }
+        break;
       case 'AGENT':
         if (t.role === 'COMMANDER') return 0;
-        w = 0.55 + er * 2.2 - es * 0.25; break;
+        if (this.round <= 2 && effEr < 0.35 && !p.hurtBy.has(t.id)) {
+          w = p.hand.length > p.hp ? 0.40 : (this.round === 1 ? 0.10 : 0.22);
+        } else {
+          w = 0.50 + effEr * 2.25 - es * 0.32;
+        }
+        break;
       case 'REBEL':
+        if (p.ambush && !p.isHuman) {
+          if (t.role === 'COMMANDER') return 0.02;
+          w = (p.hand.length > p.hp ? 0.48 : 0.14) - er * 0.3 + es * 0.85;
+          break;
+        }
         if (t.role === 'COMMANDER') return 5;
-        w = 1.0 - er * 0.55 + es * 1.2; break;
+        w = 1.0 - er * 0.55 + es * 1.2;
+        break;
       default: // SPY
         if (this.spyAIMode === 'classic') {
-          // 기본형(v0.7): 사령관 내구도 4~5일 때만 공격, 다른 승무원은 평등하게 공격
           if (t.role === 'COMMANDER') {
             if (this.othersAlive() === 0) return 8;
             return t.hp >= 4 ? (p.hurtBy.has(t.id) ? 3.5 : 1.0) : 0.05;
           }
           w = 1.0 + er * 1.5 + es * 0.3;
         } else {
-          // 동적형: 사령관 체력 및 위협 상황에 따라 목표 유동적 전환
-          const cmd = this.players[0];
           if (t.role === 'COMMANDER') {
             if (this.othersAlive() === 0) return 8;
-            if (cmd.hp <= 2) return 0.01; // 사령관 빈사 시 공격 봉인 (사령관 보호)
+            if (cmd.hp <= 2) return 0.01;
             return this.spyCmdStrong(p, t) ? (p.hurtBy.has(t.id) ? 4.0 : 2.5) : 0.05;
           }
           if (this.spyCmdStrong(p, cmd)) {
@@ -1026,17 +1327,126 @@ class Match {
     const firstInTurn = !(this.tc && this.tc.noted && this.tc.noted.has(key));
     if (this.tc && this.tc.noted) this.tc.noted.add(key);
     if (firstInTurn) {
-      if (t.role === 'COMMANDER') E.rebel[a.id] = Math.min(6, E.rebel[a.id] + 2);
-      else {
-        if (E.rebel[t.id] >= 2) E.sec[a.id] = Math.min(6, E.sec[a.id] + 1.5);
+      const prevRebT = E.rebel[t.id];
+      a.pub.hitAny++;
+      if (t.role === 'COMMANDER') {
+        a.pub.hitCmd++;
+        E.rebel[a.id] = Math.min(6, E.rebel[a.id] + 2);
+      } else {
+        if (prevRebT >= 1.8 || (t.revealed && (t.role === 'REBEL' || t.role === 'SPY'))) a.pub.hitSus++;
+        if (prevRebT >= 2) E.sec[a.id] = Math.min(6, E.sec[a.id] + 1.5);
         if (E.sec[t.id] >= 1.5) E.rebel[a.id] = Math.min(6, E.rebel[a.id] + 0.8);
       }
       if (a.role === 'AGENT' && t.role !== 'COMMANDER' && (a.known[t.id] === 'REBEL' || a.known[t.id] === 'SPY')) E.rebel[t.id] = Math.min(6, E.rebel[t.id] + 3);
+
+      if (this.doLog) {
+        if (t.role === 'COMMANDER') {
+          if (a.role === 'SPY' && this.othersAlive() === 0 && !a._spyRev) {
+            a._spyRev = true;
+            this.emitRadio(a, 'SPY_REVEAL', 'warn', true);
+          } else if (a.ambushBroke) {
+            a.ambushBroke = false;
+            this.emitRadio(a, 'AMBUSH_BREAK', 'warn', true);
+          } else if (a.pub.hitCmd === 1) {
+            this.emitRadio(a, 'HIT_CMD', 'warn', true);
+          } else if (t.alive && !t.isHuman && a.pub.hitCmd <= 2) {
+            this.emitRadio(t, 'CMD_ALERT', 'warn', false);
+          }
+        } else if (prevRebT >= 2.0) {
+          this.emitRadio(a, 'HIT_SUSPECT', 'ok', false);
+        } else if (E.rebel[t.id] < 1.8 && t._protestR !== this.round) {
+          t._protestR = this.round;
+          this.emitRadio(t, 'PROTEST', 'norm', false);
+        }
+      }
     }
     t.hurtBy.add(a.id);
+    this._evSeq = (this._evSeq || 0) + 1;
   }
 
-  /* ---------- 턴 진행 ---------- */
+  /* ---------- 드로우 & 턴 진행 ---------- */
+  drawPhase(p) {
+    const dn = this.drawRule === '1' ? 1 : this.drawRule === '2' ? 2 : (this.n <= 4 ? 2 : 1);
+    if (p.ch.key === '오라클' && dn === 2) {
+      const pool = [];
+      for (let i = 0; i < 3; i++) {
+        const c = this.drawCard(null);
+        if (c) pool.push(c);
+      }
+      if (pool.length === 3) {
+        const hasEvade = p.hand.some(x => x.type === 'EVADE' || x.type === 'SIDESTEP' || x.type === 'BLINK');
+        const hasAtk = p.hand.some(x => x.type === 'ATTACK' || x.type === 'KNOCKBACK' || x.type === 'GRAB');
+        let minIdx = 0, minV = 1e9;
+        for (let idx = 0; idx < 3; idx++) {
+          const c = pool[idx];
+          let v = this.cardValue(p, c);
+          if (p.hp < p.maxHp && c.type === 'HEAL') v += 1.5;
+          if (!hasEvade && (c.type === 'EVADE' || c.type === 'SIDESTEP' || c.type === 'BLINK')) v += 1.0;
+          if (!hasAtk && c.type === 'ATTACK') v += 0.8;
+          let prevSame = 0;
+          for (let j = 0; j < idx; j++) {
+            if (pool[j].name === c.name || (pool[j].type === 'WEAPON' && c.type === 'WEAPON')) prevSame++;
+          }
+          if (prevSame > 0) v -= 1.8 * prevSame;
+          if (v < minV) { minV = v; minIdx = idx; }
+        }
+        const putBack = pool.splice(minIdx, 1)[0];
+        this.cs[putBack.name].drawn--;
+        p.hand.push(pool[0], pool[1]);
+        this.deck.push(putBack);
+        if (!this.hasHand(p, 'DRAW')) {
+          let nextP = null;
+          for (let step = 1; step < this.players.length; step++) {
+            const cand = this.players[(this.turn + step) % this.players.length];
+            if (cand.alive) { nextP = cand; break; }
+          }
+          if (nextP) {
+            const isEv = putBack.type === 'EVADE' || putBack.type === 'SIDESTEP' || putBack.type === 'BLINK';
+            p.scan[nextP.id] = { round: this.round, evade: isEv, cards: [putBack.name] };
+          }
+        }
+        if (this.doLog) this.log('🔮 ' + this.pn(p) + ' 전술 연산 예측: 3장 확인 후 [' + pool[0].name + '], [' + pool[1].name + '] 선택 (1장 덱 맨 위 반납)', 'util');
+      } else {
+        for (let i = 0; i < pool.length; i++) p.hand.push(pool[i]);
+      }
+    } else {
+      for (let i = 0; i < dn; i++) {
+        if (i === 0 && p.ch.key === '테크니션' && this.discard.length > 0) {
+          const top = this.discard[this.discard.length - 1];
+          let tv = this.cardValue(p, top);
+          const sameCnt = this.countHand(p, top.type);
+          const unl = !!(p.weapon && p.weapon.burst);
+          const hasDef = this.countEvadeCards(p) >= 1;
+          const hasAtk = p.hand.some(x => x.type === 'ATTACK' || x.type === 'KNOCKBACK' || x.type === 'GRAB' || x.type === 'GRENADE');
+          if (top.type === 'ATTACK') {
+            if (!hasAtk) tv += 0.2;
+            else if (!unl) tv -= 1.2 * sameCnt;
+          } else if (top.type === 'EVADE' || top.type === 'SIDESTEP') {
+            if (!hasDef) tv += 0.45;
+            else if (sameCnt >= 1) tv -= 0.7 * sameCnt;
+          } else if (sameCnt >= 1 && (top.type === 'KNOCKBACK' || top.type === 'GRAB' || top.type === 'CUFF' || top.type === 'SWAP')) {
+            tv -= 0.9 * sameCnt;
+          }
+          if (top.type === 'MODULE' && !this.hasModule(p, top.name) && p.modules.length < 3) tv += 0.85;
+          if (top.type === 'DRAW') tv += 1.8;
+          if (top.type === 'HEAL' && p.hp < p.maxHp) tv += 0.5;
+          if (tv >= 2.95) {
+            const c = this.discard.pop();
+            this.cs[c.name].drawn++;
+            p.hand.push(c);
+            if (this.doLog) this.log('🔧 ' + this.pn(p) + ' 부품 회수: 버린 더미에서 [' + c.name + '] 회수', 'util');
+            continue;
+          }
+        }
+        this.drawCard(p);
+      }
+      if (p.ch.key === '버서커' && p.hp <= 2) {
+        this.drawCard(p);
+        if (this.doLog) this.log('🔥 ' + this.pn(p) + ' 광전사 각성 (HP ' + p.hp + '): 전술 카드 1장 추가 드로우 + 사거리 +1 + 레이저 샷 +1회', 'util');
+      }
+    }
+  }
+
   stepTurn() {
     if (this.over) return false;
     let guard = 0;
@@ -1045,94 +1455,18 @@ class Match {
     p.startR = p.r; p.startC = p.c;
     this.turnCount++;
     this.tc = { lasers: 0, knocks: 0, grabs: 0, medicHeal: false, cypherScan: false, trapperMine: false, bomberGrenade: false, noted: new Set(), focusId: null };
-    this.log('R' + this.round + ' ' + this.pn(p) + ' ' + ROLE_KO[p.role] + ' 턴 (HP ' + p.hp + '/' + p.maxHp + ')', 'turn');
+    if (this.doLog) this.log('R' + this.round + ' ' + this.pn(p) + ' ' + ROLE_KO[p.role] + ' 턴 (HP ' + p.hp + '/' + p.maxHp + ')', 'turn');
     let skipped = false, restricted = false;
     if (p.cuffed) {
       const d = this.d6();
       p.cuffed = false;
       const free = this.cuffMode === 'skip' ? 5 : 4;
-      if (d >= free) this.log(this.pn(p) + ' 슈트 락다운 해제 성공 (D6 ' + d + ')', 'evade');
-      else if (this.cuffMode === 'skip') { skipped = true; this.log(this.pn(p) + ' 슈트 락다운에 묶여 턴을 넘김 (D6 ' + d + ')', 'combat'); }
-      else { restricted = true; this.log(this.pn(p) + ' 슈트 락다운: 이번 턴 이동·공격 불가 (D6 ' + d + ')', 'combat'); }
+      if (d >= free) { if (this.doLog) this.log(this.pn(p) + ' 슈트 락다운 해제 성공 (D6 ' + d + ')', 'evade'); }
+      else if (this.cuffMode === 'skip') { skipped = true; if (this.doLog) this.log(this.pn(p) + ' 슈트 락다운에 묶여 턴을 넘김 (D6 ' + d + ')', 'combat'); }
+      else { restricted = true; if (this.doLog) this.log(this.pn(p) + ' 슈트 락다운: 이번 턴 이동·공격 불가 (D6 ' + d + ')', 'combat'); }
     }
     if (!skipped) {
-      const dn = this.drawRule === '1' ? 1 : this.drawRule === '2' ? 2 : (this.n <= 4 ? 2 : 1);
-      if (p.ch.key === '오라클' && dn === 2) {
-        const pool = [];
-        for (let i = 0; i < 3; i++) {
-          const c = this.drawCard(null);
-          if (c) pool.push(c);
-        }
-        if (pool.length === 3) {
-          const hasEvade = p.hand.some(x => x.type === 'EVADE' || x.type === 'SIDESTEP' || x.type === 'BLINK');
-          const hasAtk = p.hand.some(x => x.type === 'ATTACK' || x.type === 'KNOCKBACK' || x.type === 'GRAB');
-          let minIdx = 0, minV = 1e9;
-          pool.forEach((c, idx) => {
-            let v = this.cardValue(p, c);
-            if (p.hp < p.maxHp && c.type === 'HEAL') v += 1.5;
-            if (!hasEvade && (c.type === 'EVADE' || c.type === 'SIDESTEP' || c.type === 'BLINK')) v += 1.0;
-            if (!hasAtk && c.type === 'ATTACK') v += 0.8;
-            const prevSame = pool.slice(0, idx).filter(x => x.name === c.name || (x.type === 'WEAPON' && c.type === 'WEAPON')).length;
-            if (prevSame > 0) v -= 1.8 * prevSame;
-            if (v < minV) { minV = v; minIdx = idx; }
-          });
-          const putBack = pool.splice(minIdx, 1)[0];
-          this.cs[putBack.name].drawn--;
-          p.hand.push(pool[0], pool[1]);
-          // 다음 턴 생존 승무원 파악 및 예측 정보 기록
-          let nextP = null;
-          for (let step = 1; step < this.players.length; step++) {
-            const cand = this.players[(this.turn + step) % this.players.length];
-            if (cand.alive) { nextP = cand; break; }
-          }
-          if (p.hand.some(c => c.type === 'DRAW')) {
-            this.deck.unshift(putBack);
-          } else {
-            this.deck.push(putBack);
-            if (nextP) {
-              const isEv = putBack.type === 'EVADE' || putBack.type === 'SIDESTEP' || putBack.type === 'BLINK';
-              p.scan[nextP.id] = { round: this.round, evade: isEv, cards: [putBack.name] };
-            }
-          }
-          this.log('🔮 ' + this.pn(p) + ' 전술 연산 예측: 3장 확인 후 [' + pool[0].name + '], [' + pool[1].name + '] 선택 (1장 덱 반납)', 'util');
-        } else {
-          pool.forEach(c => p.hand.push(c));
-        }
-      } else {
-        for (let i = 0; i < dn; i++) {
-          if (i === 0 && p.ch.key === '테크니션' && this.discard.length > 0) {
-            const top = this.discard[this.discard.length - 1];
-            let tv = this.cardValue(p, top);
-            const sameCnt = p.hand.filter(x => x.type === top.type).length;
-            const unl = !!(p.weapon && p.weapon.burst);
-            const hasDef = this.countEvadeCards(p) >= 1;
-            const hasAtk = p.hand.some(x => x.type === 'ATTACK' || x.type === 'KNOCKBACK' || x.type === 'GRAB' || x.type === 'GRENADE');
-            if (top.type === 'ATTACK') {
-              if (!hasAtk) tv += 0.2;
-              else if (!unl) tv -= 1.2 * sameCnt;
-            } else if (top.type === 'EVADE' || top.type === 'SIDESTEP') {
-              if (!hasDef) tv += 0.45;
-              else if (sameCnt >= 1) tv -= 0.7 * sameCnt;
-            } else if (sameCnt >= 1 && (top.type === 'KNOCKBACK' || top.type === 'GRAB' || top.type === 'CUFF' || top.type === 'SWAP')) {
-              tv -= 0.9 * sameCnt;
-            }
-            if (top.type === 'MODULE' && !this.hasModule(p, top.name) && p.modules.length < 3) tv += 0.85;
-            if (top.type === 'DRAW') tv += 1.8;
-            if (top.type === 'HEAL' && p.hp < p.maxHp) tv += 0.5;
-            if (tv >= 2.95) {
-              const c = this.discard.pop();
-              p.hand.push(c);
-              this.log('🔧 ' + this.pn(p) + ' 부품 회수: 버린 더미에서 [' + c.name + '] 회수', 'util');
-              continue;
-            }
-          }
-          this.drawCard(p);
-        }
-        if (p.ch.key === '버서커' && p.hp <= 2) {
-          this.drawCard(p);
-          this.log('🔥 ' + this.pn(p) + ' 광전사 각성 (HP ' + p.hp + '): 전술 카드 1장 추가 드로우 + 사거리 +1 + 레이저 샷 +1회', 'util');
-        }
-      }
+      this.drawPhase(p);
       this.preAction(p, restricted);                                          // 이동 전 행동
       if (!this.over && p.alive && !restricted) this.movePhase(p);           // 이동
       if (!this.over && p.alive) this.postAction(p, restricted);              // 이동 후 행동
@@ -1147,13 +1481,13 @@ class Match {
     if (this.turn >= this.players.length) { this.turn = 0; this.endRound(); }
   }
   endRound() {
-    this.log('── R' + this.round + ' 종료 ──', 'sys');
+    if (this.doLog) this.log('── R' + this.round + ' 종료 ──', 'sys');
     for (const p of this.players) {
       const onCore = p.alive && p.r === CENTER && p.c === CENTER;
       if (onCore && this.coreOn() && (!p.onCoreLast || p.enteredCore)) {
         this.drawCard(p); this.drawCard(p);
         if (p.hp < p.maxHp && this.canHeal()) { p.hp++; this.heal.core++; }
-        this.log(this.pn(p) + ' 코어 장악: 카드 2장 + 내구도 1 회복', 'core');
+        if (this.doLog) this.log(this.pn(p) + ' 코어 장악: 카드 2장 + 내구도 1 회복', 'core');
       }
       p.onCoreLast = onCore;
       p.enteredCore = false;
@@ -1166,13 +1500,13 @@ class Match {
     const k = this.round - this.shrinkStart;
     if (k >= 0 && k % this.shrinkEvery === 0 && k / this.shrinkEvery <= 3) this.closeRing(k / this.shrinkEvery);
     if (!this.over && this.suddenDeath && this.round >= this.suddenFrom) {
-      this.log('R' + this.round + ' 산소 고갈: 전원 내구도 -1', 'death');
+      if (this.doLog) this.log('R' + this.round + ' 산소 고갈: 전원 내구도 -1', 'death');
       for (const p of this.players) if (p.alive) this.damagePlayer(p, 1, null, '산소 고갈', true);
     }
     if (!this.over) this.checkWin();
   }
   closeRing(ring) {
-    this.log('R' + this.round + ' 비상 구역 폐쇄: 바깥 ' + (ring + 1) + '번째 테두리', 'sys');
+    if (this.doLog) this.log('R' + this.round + ' 비상 구역 폐쇄: 바깥 ' + (ring + 1) + '번째 테두리', 'sys');
     for (let r = 0; r < SIZE; r++) for (let c = 0; c < SIZE; c++) if (ringOf(r, c) === ring) this.closed[r][c] = true;
     this.mines = this.mines.filter(m => !this.closed[m.r][m.c]);
     for (const p of this.players) {
@@ -1209,7 +1543,7 @@ class Match {
     if (!t.alive || this.over) return;
     if (this.reactPatch && t.hp - amt <= 0 && this.canHeal()) {
       const needed = amt - t.hp + 1;
-      const healCnt = t.hand.filter(c => c.type === 'HEAL').length;
+      const healCnt = this.countHand(t, 'HEAL');
       if (healCnt >= needed && t.hp + needed <= t.maxHp) {
         for (let k = 0; k < needed; k++) {
           const hi = t.hand.findIndex(c => c.type === 'HEAL');
@@ -1219,14 +1553,14 @@ class Match {
             t.hp = Math.min(t.maxHp, t.hp + 1);
           }
         }
-        this.log(this.pn(t) + ' [수리 패치] ' + (needed > 1 ? needed + '장 ' : '') + '반응 사용: 내구도 +' + needed + ' (HP ' + t.hp + '/' + t.maxHp + ')', 'evade');
+        if (this.doLog) this.log(this.pn(t) + ' [수리 패치] ' + (needed > 1 ? needed + '장 ' : '') + '반응 사용: 내구도 +' + needed + ' (HP ' + t.hp + '/' + t.maxHp + ')', 'evade');
       }
     }
     t.hp -= amt;
     this.dmgTotal += amt;
     if (att && att !== t) att.dmg += amt;
     this.heat.combat[this.idx(t.r, t.c)]++;
-    this.log(this.pn(t) + ' ' + cause + ' -' + amt + ' (HP ' + Math.max(0, t.hp) + '/' + t.maxHp + ')', 'combat');
+    if (this.doLog) this.log(this.pn(t) + ' ' + cause + ' -' + amt + ' (HP ' + Math.max(0, t.hp) + '/' + t.maxHp + ')', 'combat');
     if (t.hp <= 0) {
       this.kill(t, att, cause, defer);
     } else {
@@ -1234,17 +1568,18 @@ class Match {
         const si = Math.floor(this.rand() * att.hand.length);
         const stolen = att.hand.splice(si, 1)[0];
         t.hand.push(stolen);
-        this.log('🪞 ' + this.pn(t) + ' 역류 해킹: 공격자 ' + this.pn(att) + '의 손패 1장 강탈!', 'evade');
+        if (this.doLog) this.log('🪞 ' + this.pn(t) + ' 역류 해킹: 공격자 ' + this.pn(att) + '의 손패 1장 강탈!', 'evade');
         this.checkBlitz(att);
       }
     }
   }
   kill(t, att, cause, defer) {
     t.hp = 0; t.alive = false; t.revealed = true; t.deathRound = this.round; t.cause = cause;
+    this._evSeq = (this._evSeq || 0) + 1;
     this.heat.death[this.idx(t.r, t.c)]++;
     this.deathCause[cause === '감압' || cause === '산소 고갈' ? cause : '교전'] = (this.deathCause[cause === '감압' || cause === '산소 고갈' ? cause : '교전'] || 0) + 1;
     if (this.firstDeathRound === null) this.firstDeathRound = this.round;
-    this.log(this.pn(t) + ' [' + ROLE_KO[t.role] + '] 슈트 기능 정지', 'death');
+    if (this.doLog) this.log(this.pn(t) + ' [' + ROLE_KO[t.role] + '] 슈트 기능 정지', 'death');
     while (t.hand.length) this.discardCard(t, 0, 'death');
     if (t.weapon) { this.discard.push(t.weapon); t.weapon = null; }
     if (t.modules && t.modules.length) {
@@ -1253,10 +1588,10 @@ class Match {
     if (att && att !== t && att.alive) {
       att.kills++;
       if (t.role === 'REBEL') {
-        this.log(this.pn(att) + ' 반란군 제압 보급: 카드 3장', 'core');
+        if (this.doLog) this.log(this.pn(att) + ' 반란군 제압 보급: 카드 3장', 'core');
         for (let i = 0; i < 3; i++) this.drawCard(att);
       } else if (att.role === 'COMMANDER' && t.role === 'AGENT') {
-        this.log('사령관 오인 사격 페널티: 손패 전부 폐기', 'death');
+        if (this.doLog) this.log('사령관 오인 사격 페널티: 손패 전부 폐기', 'death');
         this.wiping = true;
         while (att.hand.length) this.discardCard(att, 0, 'cost');
         this.wiping = false;
@@ -1267,18 +1602,27 @@ class Match {
   }
   checkWin() {
     if (this.over) return;
-    const alive = this.players.filter(p => p.alive);
+    let aliveCnt = 0, hasRebOrSpy = false, allSpy = true;
+    for (let i = 0; i < this.players.length; i++) {
+      const x = this.players[i];
+      if (!x.alive) continue;
+      aliveCnt++;
+      if (x.role === 'REBEL' || x.role === 'SPY') hasRebOrSpy = true;
+      if (x.role !== 'SPY') allSpy = false;
+    }
     const cmd = this.players[0];
     let w = null;
-    if (!alive.length) w = 'DRAW';
-    else if (!cmd.alive) w = alive.every(p => p.role === 'SPY') ? 'SPY' : 'REBELS';
-    else if (!alive.some(p => p.role === 'REBEL' || p.role === 'SPY')) w = 'SECURITY';
+    if (aliveCnt === 0) w = 'DRAW';
+    else if (!cmd.alive) w = allSpy ? 'SPY' : 'REBELS';
+    else if (!hasRebOrSpy) w = 'SECURITY';
     if (w) this.finish(w);
   }
   finish(w, note) {
     this.over = true; this.winner = w; this.finalRound = Math.min(this.round, MAX_ROUNDS);
-    const name = { SECURITY: '보안팀 승리', REBELS: '반란군 승리', SPY: '스파이 단독 생존', DRAW: '무승부' }[w];
-    this.log('게임 종료: ' + name + (note ? ' ' + note : ''), 'win');
+    if (this.doLog) {
+      const name = { SECURITY: '보안팀 승리', REBELS: '반란군 승리', SPY: '스파이 단독 생존', DRAW: '무승부' }[w];
+      this.log('게임 종료: ' + name + (note ? ' ' + note : ''), 'win');
+    }
   }
 
   /* ---------- 휴식 ---------- */
@@ -1294,31 +1638,55 @@ class Match {
     return false;
   }
   buildCtx(p) {
-    const enemies = this.players.filter(t => t.alive && t !== p);
-    const w = new Map(), th = new Map();
-    for (const t of enemies) { w.set(t.id, this.adjWeight(p, t)); th.set(t.id, this.threatProb(p, t)); }
-    const cnt = ty => p.hand.filter(c => c.type === ty).length;
+    this.updateAmbush(p);
+    const enemies = [];
+    let aliveCnt = 0, othersCnt = 0;
+    for (let i = 0; i < this.players.length; i++) {
+      const t = this.players[i];
+      if (!t.alive) continue;
+      aliveCnt++;
+      if (t.role !== 'SPY' && t.role !== 'COMMANDER') othersCnt++;
+      if (t !== p) enemies.push(t);
+    }
+    const w = new Float64Array(this.n + 2), th = new Float64Array(this.n + 2);
+    let prime = null, pw = 0.5;
+    for (let i = 0; i < enemies.length; i++) {
+      const t = enemies[i];
+      const wt = this.adjWeight(p, t);
+      w[t.id] = wt;
+      th[t.id] = this.threatProb(p, t);
+      if (this.canHostile(p, t) && wt > pw) { pw = wt; prime = t; }
+    }
+    const atkCnt = this.countHand(p, 'ATTACK');
+    const evCnt = this.countHand(p, 'EVADE');
     const isSwitcher = p.ch.key === '스위처';
-    const canConvertAtk = isSwitcher && p.switcherRound !== this.round && (cnt('EVADE') >= 2 || p.hp >= 3 || p.hand.length > p.hp);
-    const lasers = cnt('ATTACK') + (canConvertAtk ? 1 : 0);
+    const canConvertAtk = isSwitcher && p.switcherRound !== this.round && (evCnt >= 2 || p.hp >= 3 || p.hand.length > p.hp);
+    const lasers = atkCnt + (canConvertAtk ? 1 : 0);
     const unl = !!(p.weapon && p.weapon.burst) || p.ch.key === '거너';
     const maxLasers = (p.ch.key === '버서커' && p.hp <= 2) ? 2 : 1;
     const canLaser = lasers > 0 && (this.tc.lasers < maxLasers || unl);
-    const knock = cnt('KNOCKBACK');
+    const knock = this.countHand(p, 'KNOCKBACK');
     const canKnock = knock > 0 && this.tc.knocks === 0;
-    const canGrab = p.hand.some(c => c.type === 'GRAB') && this.tc.grabs === 0;
-    const canBomberGrenade = p.ch.key === '봄버' && !this.tc.bomberGrenade && p.hand.some(c => c.type === 'ATTACK') && p.hand.length >= 2;
-    const canGrenade = p.hand.some(c => c.type === 'GRENADE') || canBomberGrenade;
-    const canHack = p.hand.some(c => c.type === 'HACK');
+    const canGrab = this.hasHand(p, 'GRAB') && this.tc.grabs === 0;
+    const canBomberGrenade = p.ch.key === '봄버' && !this.tc.bomberGrenade && atkCnt > 0 && p.hand.length >= 2;
+    const canGrenade = this.hasHand(p, 'GRENADE') || canBomberGrenade;
+    const canHack = this.hasHand(p, 'HACK');
     const canAtk = canLaser || canKnock || canGrab || canGrenade || canHack;
-    let prime = null, pw = 0.5;
-    for (const t of enemies) { if (this.canHostile(p, t) && w.get(t.id) > pw) { pw = w.get(t.id); prime = t; } }
+    let sensors = null;
+    if (p.ch.key === '사이퍼' && !this.tc.cypherScan) {
+      sensors = [];
+      for (let sr = 0; sr < SIZE; sr++) {
+        for (let sc = 0; sc < SIZE; sc++) {
+          if (TERRAIN[sr][sc] === 'SENSOR' && !this.closed[sr][sc]) sensors.push([sr, sc]);
+        }
+      }
+    }
     const li = this.lowestIdx(p, -1);
     return {
-      enemies, w, th, lasers, knock, prime,
+      enemies, w, th, lasers, knock, prime, pw, aliveCnt, othersCnt, sensors,
       canLaser, canKnock, canGrab, canGrenade, canHack, canAtk,
-      evade: cnt('EVADE') + (isSwitcher && p.switcherRound !== this.round ? cnt('ATTACK') : 0) + cnt('SIDESTEP') + cnt('BLINK'),
-      heal: cnt('HEAL'),
+      evade: evCnt + (isSwitcher && p.switcherRound !== this.round ? atkCnt : 0) + this.countHand(p, 'SIDESTEP') + this.countHand(p, 'BLINK'),
+      heal: this.countHand(p, 'HEAL'),
       bomber: canBomberGrenade,
       grab: canGrab,
       atkFactor: (canLaser || canGrab || canGrenade) ? 1 : (canKnock || canHack ? 0.75 : 0.0),
@@ -1342,51 +1710,52 @@ class Match {
     const coreOn = this.coreOn();
     const fk = this.idx(r, c);
     const facCool = !!(p.facRound && p.facRound[fk] === this.round - 1);
+    const scouting = (this.round <= 2 && !ctx.prime) || p.ambush;
     if (!here) {
       if (p.ch.key !== '트래퍼' && this.hasMineAt(r, c)) s -= (p.hp <= 2 ? 6.5 : (ctx.evade >= 2 ? 2.1 : 3.8));
-      if (ter === 'CORE' && coreOn) s += 1.0 + (this.round >= this.shrinkStart - 1 ? 0.6 : 0);
-      else if (ter === 'WEAPON' && !facCool) s += p.hand.length < p.hp + 1 ? 0.9 : 0.35;
-      else if (ter === 'SENSOR') s += 0.55 + (p.hp > 0 ? 0.2 : 0);
+      if (ter === 'CORE' && coreOn) s += 1.0 + (this.round >= this.shrinkStart - 1 ? 0.6 : 0) + (scouting ? 0.35 : 0);
+      else if (ter === 'WEAPON' && !facCool) s += (p.hand.length < p.hp + 1 ? 0.9 : 0.35) + (scouting ? 0.65 : 0);
+      else if (ter === 'SENSOR') s += 0.55 + (p.hp > 0 ? 0.2 : 0) + (scouting && p.role !== 'REBEL' ? 0.45 : 0);
       else if (ter === 'MED' && !facCool && this.canHeal() && p.hp < p.maxHp && ctx.cheap) s += (p.hp <= 2 || p.hand.length > p.hp ? 1.45 : 1.05);
     } else if (ter === 'CORE' && coreOn) s += 0.4;
     if (ter === 'COVER') {
-      s += (p.ch.key === '섀도우' ? (ctx.canAtk ? 0.95 : 1.45) : (p.ch.key === '거너' && ctx.evade === 0 ? 0.55 : 0.35));
+      s += (p.ch.key === '섀도우' ? (ctx.canAtk ? 0.95 : 1.45) : (p.ch.key === '거너' && ctx.evade === 0 ? 0.55 : 0.35)) + (scouting ? 0.25 : 0);
     }
-    if (p.ch.key === '사이퍼' && !this.tc.cypherScan) {
-      for (let sr = 0; sr < SIZE; sr++) {
-        for (let sc = 0; sc < SIZE; sc++) {
-          if (TERRAIN[sr][sc] === 'SENSOR' && !this.closed[sr][sc] && manh(r, c, sr, sc) <= 3) {
-            s += 0.45; sr = SIZE; break;
-          }
-        }
+    if (ctx.sensors) {
+      for (let i = 0; i < ctx.sensors.length; i++) {
+        if (manh(r, c, ctx.sensors[i][0], ctx.sensors[i][1]) <= 3) { s += 0.45; break; }
       }
     }
 
-    const rg = this.rangeOf(p, r, c, false), rgp = this.rangeOf(p, r, c, true);
-    const av = [];
+    const rg = this.rangeOf(p, r, c, false);
+    let top1 = 0, top2 = 0, hasAv = false;
     if (ctx.canAtk) {
-      for (const t of ctx.enemies) {
+      for (let i = 0; i < ctx.enemies.length; i++) {
+        const t = ctx.enemies[i];
         if (!this.canHostile(p, t)) continue;
-        const w = ctx.w.get(t.id);
+        const w = ctx.w[t.id];
         if (w < 0.3) continue;
         const d = manh(r, c, t.r, t.c);
         const canGunnerLaser = ctx.lasers > 0 && (this.tc.lasers === 0 || (p.ch.key === '거너' && d === 1) || !!(p.weapon && p.weapon.burst) || (p.ch.key === '버서커' && p.hp <= 2 && this.tc.lasers < 2));
-        let ok = (canGunnerLaser || ctx.canKnock) && this.canShoot(r, c, t.r, t.c, rg, false);
-        if (!ok && ctx.grab && !(t.ch.key === '섀도우' && TERRAIN[t.r][t.c] === 'COVER')) { const gd = manh(r, c, t.r, t.c), gw = this.lineWalls(r, c, t.r, t.c); ok = gd >= 2 && gd <= 4 && gw >= 0 && gw <= 1; }
-        if (!ok && ctx.canGrenade) { const gd = manh(r, c, t.r, t.c); ok = gd >= 2 && gd <= (p.ch.key === '트래퍼' || p.ch.key === '봄버' ? 4 : 3); }
+        let ok = (canGunnerLaser || ctx.canKnock) && this.canShoot(r, c, t.r, t.c, rg, false, t);
+        if (!ok && ctx.grab && !(t.ch.key === '섀도우' && TERRAIN[t.r][t.c] === 'COVER')) { const gw = this.lineWalls(r, c, t.r, t.c); ok = d >= 2 && d <= 4 && gw >= 0 && gw <= 1; }
+        if (!ok && ctx.canGrenade) { ok = d >= 2 && d <= (p.ch.key === '트래퍼' || p.ch.key === '봄버' ? 4 : 3); }
         if (ok) {
-          let bonus = (p.ch.key === '거너' && d === 1 && ctx.lasers >= 2) ? 0.35 * Math.min(2, ctx.lasers - 1) : 0;
-          av.push(Math.min(w, 5) + bonus);
+          hasAv = true;
+          const bonus = (p.ch.key === '거너' && d === 1 && ctx.lasers >= 2) ? 0.35 * Math.min(2, ctx.lasers - 1) : 0;
+          const val = Math.min(w, 5) + bonus;
+          if (val > top1) { top2 = top1; top1 = val; }
+          else if (val > top2) { top2 = val; }
         }
       }
     }
-    av.sort((a, b) => b - a);
     const ag = this.aggr();
-    s += ((av[0] || 0) + (av[1] || 0) * 0.5) * 0.7 * AI.atk * ctx.atkFactor * ag;
+    s += (top1 + top2 * 0.5) * 0.7 * AI.atk * ctx.atkFactor * ag;
 
     let danger = 0;
-    for (const t of ctx.enemies) {
-      const pr = ctx.th.get(t.id);
+    for (let i = 0; i < ctx.enemies.length; i++) {
+      const t = ctx.enemies[i];
+      const pr = ctx.th[t.id];
       if (pr > 0 && this.canThreaten(t, r, c, p)) danger += pr;
     }
     let dm = p.hp <= 1 ? 2.4 : p.hp === 2 ? 1.7 : (p.maxHp <= 3 ? 1.35 : 1.15);
@@ -1398,8 +1767,13 @@ class Match {
     if (this.hasModule(p, '위상 편향기')) dm *= 0.8;
     s -= danger * dm * AI.danger / ag;
     if (danger === 0 && p.hp < p.maxHp) s += 0.5;
+    if (p.role === 'SPY' && this.players.length >= 5 && this.spyAIMode === 'classic' && ctx.othersCnt >= 1 && ctx.aliveCnt <= 5) {
+      if (ter === 'WEAPON' && !facCool && !here) s += 0.85;
+      if (ter === 'COVER') s += 0.5;
+      s -= danger * (ctx.othersCnt >= 2 ? (this.players.length === 6 ? 0.75 : 0.85) : 0.4);
+    }
     const pr = ctx.prime;
-    if (pr && pr.alive && !av.length && ctx.canAtk) {                       // 공격 가능 상태일 때만 표적 추격
+    if (pr && pr.alive && !hasAv && ctx.canAtk) {                       // 공격 가능 상태일 때만 표적 추격
       const adr = Math.abs(r - pr.r), adc = Math.abs(c - pr.c);
       const sh = rg <= 2 ? 1.4 : 1.0;
       s -= (0.10 * (adr + adc) + 0.14 * Math.min(adr, adc)) * sh;
@@ -1409,11 +1783,18 @@ class Match {
     const cmd = ctx.cmd;
     if (cmd.alive && p !== cmd) {
       const dc = manh(r, c, cmd.r, cmd.c);
-      if (p.role === 'REBEL') s -= 0.12 * dc;
-      else if (p.role === 'AGENT' && dc > 3) s -= 0.06 * (dc - 3);
+      if (p.role === 'REBEL') {
+        if (p.ambush) {
+          if (dc > 4) s -= 0.08 * (dc - 4);
+          else if (dc <= 1) s -= 0.35;
+        } else {
+          s -= 0.12 * dc;
+        }
+      } else if (p.role === 'AGENT' && dc > 3) s -= 0.06 * (dc - 3);
     }
     if (p.ch.key === '메딕' && ctx.heal > 0) {
-      for (const t of this.players) {
+      for (let i = 0; i < this.players.length; i++) {
+        const t = this.players[i];
         if (!this.isMedicAlly(p, t) || t.hp >= t.maxHp) continue;
         const da = manh(r, c, t.r, t.c);
         if (da <= 2) s += 1.25 * (t.maxHp - t.hp >= 2 ? 1.3 : 1.0);
@@ -1426,41 +1807,55 @@ class Match {
   reachable(p, steps) {
     const jump = p.ch.key === '러너';
     const N = SIZE * SIZE;
-    const dist = new Int16Array(N * 2).fill(99);
-    const buckets = Array.from({ length: steps + 3 }, () => []);
-    dist[p.r * SIZE + p.c] = 0;
-    buckets[0].push([p.r, p.c, 0]);
-    const best = new Map();
-    const relax = (r, c, j, cost) => {
-      if (cost > steps) return;
-      const k = j * N + r * SIZE + c;
-      if (cost < dist[k]) { dist[k] = cost; buckets[cost].push([r, c, j]); }
-    };
+    _reachDist.fill(99);
+    _reachSeen.fill(0);
+    while (_reachBuckets.length <= steps + 2) _reachBuckets.push([]);
+    for (let i = 0; i <= steps + 2; i++) _reachBuckets[i].length = 0;
+    _reachDist[p.r * SIZE + p.c] = 0;
+    _reachBuckets[0].push(p.r, p.c, 0);
+    const out = [];
     for (let cst = 0; cst <= steps; cst++) {
-      for (const [r, c, j] of buckets[cst]) {
-        if (dist[j * N + r * SIZE + c] !== cst) continue;
+      const b = _reachBuckets[cst];
+      for (let bi = 0; bi < b.length; bi += 3) {
+        const r = b[bi], c = b[bi + 1], j = b[bi + 2];
         const key = r * SIZE + c;
-        if (!best.has(key)) best.set(key, [r, c]);
-        for (const [dr, dc] of DIRS) {
+        if (_reachDist[j * N + key] !== cst) continue;
+        if (!_reachSeen[key]) {
+          _reachSeen[key] = 1;
+          out.push([r, c]);
+        }
+        for (let di = 0; di < 4; di++) {
+          const dr = DIRS[di][0], dc = DIRS[di][1];
           const nr = r + dr, nc = c + dc;
           if (!this.inb(nr, nc)) continue;
-          if (!this.isWall(nr, nc) && !this.playerAt(nr, nc, p.id)) relax(nr, nc, j, cst + 1);
-          else if (jump && j === 0) {
+          if (!this.isWall(nr, nc) && !this.playerAt(nr, nc, p.id)) {
+            const ncost = cst + 1;
+            if (ncost <= steps) {
+              const nk = j * N + nr * SIZE + nc;
+              if (ncost < _reachDist[nk]) { _reachDist[nk] = ncost; _reachBuckets[ncost].push(nr, nc, j); }
+            }
+          } else if (jump && j === 0) {
             const lr = nr + dr, lc = nc + dc;
-            if (this.inb(lr, lc) && !this.isWall(lr, lc) && !this.playerAt(lr, lc, p.id)) relax(lr, lc, 1, cst + 2);
+            const ncost = cst + 2;
+            if (ncost <= steps && this.inb(lr, lc) && !this.isWall(lr, lc) && !this.playerAt(lr, lc, p.id)) {
+              const nk = N + lr * SIZE + lc;
+              if (ncost < _reachDist[nk]) { _reachDist[nk] = ncost; _reachBuckets[ncost].push(lr, lc, 1); }
+            }
           }
         }
       }
     }
-    return Array.from(best.values());
+    return out;
   }
   bestTile(p, steps, ctx) {
-    let bt = null, bs = -1e9;
-    for (const [r, c] of this.reachable(p, steps)) {
+    let br = p.r, bc = p.c, bs = -1e9;
+    const reach = this.reachable(p, steps);
+    for (let i = 0; i < reach.length; i++) {
+      const r = reach[i][0], c = reach[i][1];
       const s = this.evalTile(p, r, c, ctx);
-      if (s > bs) { bs = s; bt = [r, c]; }
+      if (s > bs) { bs = s; br = r; bc = c; }
     }
-    return { r: bt[0], c: bt[1], score: bs };
+    return { r: br, c: bc, score: bs };
   }
   movePhase(p) {
     let raw = this.d6();
@@ -1471,9 +1866,11 @@ class Match {
     const ctx = this.buildCtx(p);
     const steps = Math.max(1, base - pen + th);
     const best = this.bestTile(p, steps, ctx);
-    const vgText = (p.ch.key === '뱅가드' && raw < 3) ? ' → 정속 주행(3칸)' : '';
-    const thText = th ? '+추진기(1)' : '';
-    this.log(this.pn(p) + ' 이동 주사위 ' + raw + vgText + (thText ? ' ' + thText : '') + ' → (' + (best.r + 1) + ',' + (best.c + 1) + ')', 'move');
+    if (this.doLog) {
+      const vgText = (p.ch.key === '뱅가드' && raw < 3) ? ' → 정속 주행(3칸)' : '';
+      const thText = th ? '+추진기(1)' : '';
+      this.log(this.pn(p) + ' 이동 주사위 ' + raw + vgText + (thText ? ' ' + thText : '') + ' → (' + (best.r + 1) + ',' + (best.c + 1) + ')', 'move');
+    }
     p.r = best.r; p.c = best.c;
     if (p.r !== p.startR || p.c !== p.startC) this.tileEntry(p);
   }
@@ -1485,21 +1882,33 @@ class Match {
       if (!facCool) {
         p.facRound[fk] = this.round;
         this.drawCard(p);
-        this.log(this.pn(p) + ' 무기고 진입: 카드 1장', 'util');
+        if (this.doLog) {
+          this.log(this.pn(p) + ' 무기고 진입: 카드 1장', 'util');
+          if (this.round <= 2 && p.pub.hitAny === 0) this.emitRadio(p, 'EXPLORE_WEAPON', 'norm', false);
+        }
       } else {
-        this.log(this.pn(p) + ' 무기고 진입: 재충전 대기 중', 'sys');
+        if (this.doLog) this.log(this.pn(p) + ' 무기고 진입: 재충전 대기 중', 'sys');
       }
     }
-    else if (ter === 'CORE') { p.enteredCore = true; this.log(this.pn(p) + ' 코어 진입', 'core'); }
+    else if (ter === 'CORE') {
+      p.enteredCore = true;
+      if (this.doLog) {
+        this.log(this.pn(p) + ' 코어 진입', 'core');
+        if (this.round <= 2 && p.pub.hitAny === 0) this.emitRadio(p, 'EXPLORE_HOLD', 'norm', false);
+      }
+    }
     else if (ter === 'SENSOR') this.scan(p);
     else if (ter === 'MED') this.medbay(p);
+    else if (ter === 'COVER' && this.doLog && this.round <= 2 && p.pub.hitAny === 0) {
+      this.emitRadio(p, 'EXPLORE_HOLD', 'norm', false);
+    }
     this.checkMine(p);
   }
   medbay(p) {
     if (!this.canHeal() || p.hp >= p.maxHp || !p.hand.length) return;
     const fk = this.idx(p.r, p.c);
     if (p.facRound && p.facRound[fk] === this.round - 1) {
-      this.log(this.pn(p) + ' 의무실 진입: 재충전 대기 중', 'sys');
+      if (this.doLog) this.log(this.pn(p) + ' 의무실 진입: 재충전 대기 중', 'sys');
       return;
     }
     const i = this.lowestIdx(p, -1);
@@ -1507,43 +1916,60 @@ class Match {
     p.facRound[fk] = this.round;
     const c = this.discardCard(p, i, 'cost');
     p.hp++; this.heal.med++;
-    this.log(this.pn(p) + ' 의무실: [' + c.name + '] 폐기, 내구도 +1 (HP ' + p.hp + '/' + p.maxHp + ')', 'util');
+    if (this.doLog) this.log(this.pn(p) + ' 의무실: [' + c.name + '] 폐기, 내구도 +1 (HP ' + p.hp + '/' + p.maxHp + ')', 'util');
   }
   scan(p, isRemote) {
     let best = null, bw = -1;
     const maxDist = p.ch.key === '사이퍼' ? 5 : 4;
     for (const t of this.players) {
       if (!t.alive || t === p || manh(p.r, p.c, t.r, t.c) > maxDist) continue;
-      const w = this.adjWeight(p, t);
+      const freshBonus = (p.scan[t.id] && this.round - p.scan[t.id].round <= 1) ? -0.45 : 0.40;
+      const w = this.adjWeight(p, t) + freshBonus;
       if (w > bw) { bw = w; best = t; }
     }
     if (!best) return;
+    p.pub.scan++;
     const d = this.d6();
     const wantCount = d <= 2 ? 1 : d <= 4 ? 2 : 3;
     const tag = isRemote ? '원격 센서 접속' : '센서실 정찰';
     if (!best.hand.length) {
       p.scan[best.id] = { round: this.round, evade: false, cards: [] };
-      this.log('📡 ' + this.pn(p) + ' ' + tag + ' (D6 ' + d + '): ' + this.pn(best) + '의 손패가 0장(빈손)임을 확인!', 'util');
+      if (this.doLog) this.log('📡 ' + this.pn(p) + ' ' + tag + ' (D6 ' + d + '): ' + this.pn(best) + '의 손패가 0장(빈손)임을 확인!', 'util');
       return;
     }
     const pickCount = Math.min(best.hand.length, wantCount);
-    const shuffled = this.shuffle(best.hand.slice());
+    const shuffled = this.shuffle(best.hand);
     const seen = shuffled.slice(0, pickCount);
     const hasEvade = seen.some(c => c.type === 'EVADE' || c.type === 'SIDESTEP' || c.type === 'BLINK');
+    let hostileCnt = 0;
+    for (let k = 0; k < seen.length; k++) {
+      const ct = seen[k].type;
+      if (ct === 'GRENADE' || ct === 'CUFF' || ct === 'HACK' || seen[k].name === '플라즈마 샷건') hostileCnt += 2;
+      else if (ct === 'ATTACK' || ct === 'KNOCKBACK' || ct === 'GRAB' || ct === 'EMP') hostileCnt += 1;
+    }
+    if (hostileCnt >= 2 && best.role !== 'COMMANDER' && this.ev.sec[best.id] < 1.5 && p.susp) {
+      p.susp[best.id] = Math.min(2.2, p.susp[best.id] + 0.85);
+    }
     p.scan[best.id] = { round: this.round, evade: hasEvade, cards: seen.map(c => c.name) };
-    const cardNames = seen.map(c => '[' + c.name + ']').join(', ');
-    this.log('📡 ' + this.pn(p) + ' ' + tag + ' (D6 ' + d + '): ' + this.pn(best) + '의 손패 ' + pickCount + '장 스캔! → ' + cardNames, 'util');
+    if (this.doLog) {
+      const cardNames = seen.map(c => '[' + c.name + ']').join(', ');
+      this.log('📡 ' + this.pn(p) + ' ' + tag + ' (D6 ' + d + '): ' + this.pn(best) + '의 손패 ' + pickCount + '장 스캔! → ' + cardNames, 'util');
+      if (this.round <= 3) this.emitRadio(p, 'EXPLORE_SENSOR', 'norm', false);
+    }
     if (p.ch.key === '사이퍼' && d >= 5) {
       this.drawCard(p);
-      this.log('📡 ' + this.pn(p) + ' 정밀 스캔 데이터 마이닝(D6 ' + d + '): 전술 카드 1장 추가 확보', 'util');
+      if (this.doLog) this.log('📡 ' + this.pn(p) + ' 정밀 스캔 데이터 마이닝(D6 ' + d + '): 전술 카드 1장 추가 확보', 'util');
     }
   }
   tryCypherScan(p) {
     if (this.over || !p.alive || p.ch.key !== '사이퍼' || this.tc.cypherScan) return;
     let nearSensor = false;
-    for (let r = 0; r < SIZE && !nearSensor; r++) {
-      for (let c = 0; c < SIZE; c++) {
-        if (TERRAIN[r][c] === 'SENSOR' && !this.closed[r][c] && manh(p.r, p.c, r, c) <= 3) {
+    const rMin = Math.max(0, p.r - 3), rMax = Math.min(SIZE - 1, p.r + 3);
+    for (let r = rMin; r <= rMax && !nearSensor; r++) {
+      const rem = 3 - Math.abs(p.r - r);
+      const cMin = Math.max(0, p.c - rem), cMax = Math.min(SIZE - 1, p.c + rem);
+      for (let c = cMin; c <= cMax; c++) {
+        if (TERRAIN[r][c] === 'SENSOR' && !this.closed[r][c]) {
           nearSensor = true; break;
         }
       }
@@ -1560,7 +1986,7 @@ class Match {
       const i = p.hand.findIndex(c => c.type === 'DRAW');
       if (i < 0) break;
       this.useCard(p, i); this.drawCard(p); this.drawCard(p);
-      this.log(this.pn(p) + ' 시스템 리커버리: 카드 2장', 'util');
+      if (this.doLog) this.log(this.pn(p) + ' 시스템 리커버리: 카드 2장', 'util');
     }
   }
   preAction(p, restricted) {
@@ -1600,17 +2026,18 @@ class Match {
   }
   equipBest(p) {
     let bi = -1, bv = this.weaponValue(p, p.weapon);
-    p.hand.forEach((c, i) => {
-      if (c.type !== 'WEAPON') return;
+    for (let i = 0; i < p.hand.length; i++) {
+      const c = p.hand[i];
+      if (c.type !== 'WEAPON') continue;
       const v = this.weaponValue(p, c);
       if (v > bv + 0.2) { bv = v; bi = i; }
-    });
+    }
     if (bi >= 0) {
       const w = p.hand.splice(bi, 1)[0];
       this.cs[w.name].used++;
       if (p.weapon) this.discard.push(p.weapon);
       p.weapon = w;
-      this.log(this.pn(p) + ' [' + w.name + '] 장착', 'util');
+      if (this.doLog) this.log(this.pn(p) + ' [' + w.name + '] 장착', 'util');
     }
     // 장비 장착: 보조 모듈 최대 2개 (테크니션은 최대 3개, 동일 모듈 중복 장착 불가)
     const maxMod = p.ch.key === '테크니션' ? 3 : 2;
@@ -1626,10 +2053,13 @@ class Match {
       const m = p.hand.splice(mi, 1)[0];
       this.cs[m.name].used++;
       p.modules.push(m);
-      const info = m.name === '위상 편향기' ? ' (자동 회피 D6 5+)' : m.name === '보조 추진기' ? ' (이동력 +1)' : ' (사거리 +1)';
-      this.log(this.pn(p) + ' [' + m.name + '] 장착' + info + ' (모듈 ' + p.modules.length + '/' + maxMod + ')', 'util');
+      if (this.doLog) {
+        const info = m.name === '위상 편향기' ? ' (자동 회피 D6 5+)' : m.name === '보조 추진기' ? ' (이동력 +1)' : ' (사거리 +1)';
+        this.log(this.pn(p) + ' [' + m.name + '] 장착' + info + ' (모듈 ' + p.modules.length + '/' + maxMod + ')', 'util');
+      }
     }
     this.checkBlitz(p);
+    this.updateAmbush(p);
   }
   healIfNeeded(p) {
     if (!this.canHeal()) {
@@ -1637,12 +2067,12 @@ class Match {
         const i = p.hand.findIndex(c => c.type === 'HEAL');
         if (i < 0) break;
         this.useCard(p, i);
-        this.log(this.pn(p) + ' [수리 패치] 사용: 생존자 2명 대치로 회복 효과 없음 (카드만 폐기)', 'sys');
+        if (this.doLog) this.log(this.pn(p) + ' [수리 패치] 사용: 생존자 2명 대치로 회복 효과 없음 (카드만 폐기)', 'sys');
       }
       return;
     }
     while (p.hp < p.maxHp) {
-      const n = p.hand.filter(c => c.type === 'HEAL').length;
+      const n = this.countHand(p, 'HEAL');
       if (n === 0) break;
       const blitzFlush = p.ch.key === '블리츠' && p.hand.length <= 2 && (this.tc.blitzDraws || 0) < 2;
       const berserkHold = p.ch.key === '버서커' && p.hp === 2 && this.countEvadeCards(p) >= 1 && p.hand.length <= p.hp && n < 2;
@@ -1650,15 +2080,14 @@ class Match {
       if (this.reactPatch && !(p.maxHp - p.hp >= 2 || n >= 2 || p.hand.length > p.hp || blitzFlush)) break;   // 초과 손패 시 즉시 회복하여 손패 한도 확보
       const i = p.hand.findIndex(c => c.type === 'HEAL');
       this.useCard(p, i);
-      const v = 1;
       this.heal.patch++;
-      p.hp = Math.min(p.maxHp, p.hp + v);
-      this.log(this.pn(p) + ' 수리 패치 +' + v + ' (HP ' + p.hp + '/' + p.maxHp + ')', 'util');
+      p.hp = Math.min(p.maxHp, p.hp + 1);
+      if (this.doLog) this.log(this.pn(p) + ' 수리 패치 +1 (HP ' + p.hp + '/' + p.maxHp + ')', 'util');
     }
     if (p.ch.key === '메딕') {
       // 1) 원격 패치 투여 (거리 1~2칸 이내 아군 회복)
-      while (p.hand.some(c => c.type === 'HEAL')) {
-        const n = p.hand.filter(c => c.type === 'HEAL').length;
+      while (this.hasHand(p, 'HEAL')) {
+        const n = this.countHand(p, 'HEAL');
         let ally = null;
         for (const t of this.players) {
           if (!t.alive || t === p || t.hp >= t.maxHp || manh(p.r, p.c, t.r, t.c) > 2) continue;
@@ -1671,8 +2100,13 @@ class Match {
         this.useCard(p, hi);
         this.heal.patch++;
         ally.hp = Math.min(ally.maxHp, ally.hp + 1);
-        if (ally.role === 'COMMANDER') this.ev.sec[p.id] = Math.min(6, this.ev.sec[p.id] + 2);
-        this.log('💉 ' + this.pn(p) + ' 원격 패치 투여 → ' + this.pn(ally) + ' 내구도 +1 (HP ' + ally.hp + '/' + ally.maxHp + ')', 'util');
+        if (ally.role === 'COMMANDER') {
+          p.pub.helpedCmd++;
+          this.ev.sec[p.id] = Math.min(6, this.ev.sec[p.id] + 2);
+          this._evSeq = (this._evSeq || 0) + 1;
+          this.emitRadio(p, 'HELP_CMD', 'ok', false);
+        }
+        if (this.doLog) this.log('💉 ' + this.pn(p) + ' 원격 패치 투여 → ' + this.pn(ally) + ' 내구도 +1 (HP ' + ally.hp + '/' + ally.maxHp + ')', 'util');
       }
       // 2) 자가 응급 처치 (턴당 1회 손패 2장 버리고 회복 1)
       if (!this.tc.medicHeal && p.hp < p.maxHp && p.hand.length >= 2) {
@@ -1687,7 +2121,7 @@ class Match {
             const c2 = this.discardCard(p, idxMin, 'cost');
             this.tc.medicHeal = true;
             p.hp++; this.heal.med++;
-            this.log('💉 ' + this.pn(p) + ' 자가 응급 처치: [' + c1.name + '], [' + c2.name + '] 폐기 → 내구도 +1 (HP ' + p.hp + '/' + p.maxHp + ')', 'util');
+            if (this.doLog) this.log('💉 ' + this.pn(p) + ' 자가 응급 처치: [' + c1.name + '], [' + c2.name + '] 폐기 → 내구도 +1 (HP ' + p.hp + '/' + p.maxHp + ')', 'util');
           }
         }
       }
@@ -1724,43 +2158,43 @@ class Match {
       if (val > bv) { bv = val; best = { t, targetType, modIdx }; }
     }
     if (!best || bv <= 0) return;
-    const card = this.useCard(p, i);
+    this.useCard(p, i);
     this.noteAttack(p, best.t);
     const maxMod = p.ch.key === '테크니션' ? 3 : 2;
     if (best.targetType === 'weapon') {
       const w = best.t.weapon;
       best.t.weapon = null;
-      this.log('💻 ' + this.pn(p) + ' [해킹] 침투! ' + this.pn(best.t) + '의 무기 [' + w.name + '] 강탈!', 'attack');
+      if (this.doLog) this.log('💻 ' + this.pn(p) + ' [해킹] 침투! ' + this.pn(best.t) + '의 무기 [' + w.name + '] 강탈!', 'attack');
       if (!p.weapon || this.weaponValue(p, w) > this.weaponValue(p, p.weapon)) {
         if (p.weapon) this.discard.push(p.weapon);
         p.weapon = w;
-        this.log(this.pn(p) + ' 강탈한 [' + w.name + '] 즉시 장착!', 'util');
+        if (this.doLog) this.log(this.pn(p) + ' 강탈한 [' + w.name + '] 즉시 장착!', 'util');
       } else {
         p.hand.push(w);
-        this.log(this.pn(p) + ' 강탈한 [' + w.name + '] 손패에 보관', 'util');
+        if (this.doLog) this.log(this.pn(p) + ' 강탈한 [' + w.name + '] 손패에 보관', 'util');
       }
     } else if (best.targetType === 'module') {
       const m = best.t.modules.splice(best.modIdx, 1)[0];
-      this.log('💻 ' + this.pn(p) + ' [해킹] 침투! ' + this.pn(best.t) + '의 보조 모듈 [' + m.name + '] 강탈!', 'attack');
+      if (this.doLog) this.log('💻 ' + this.pn(p) + ' [해킹] 침투! ' + this.pn(best.t) + '의 보조 모듈 [' + m.name + '] 강탈!', 'attack');
       if (p.modules.length < maxMod && !this.hasModule(p, m.name)) {
         p.modules.push(m);
-        this.log(this.pn(p) + ' 강탈한 [' + m.name + '] 즉시 장착!', 'util');
+        if (this.doLog) this.log(this.pn(p) + ' 강탈한 [' + m.name + '] 즉시 장착!', 'util');
       } else {
         p.hand.push(m);
-        this.log(this.pn(p) + ' 강탈한 [' + m.name + '] 손패에 보관', 'util');
+        if (this.doLog) this.log(this.pn(p) + ' 강탈한 [' + m.name + '] 손패에 보관', 'util');
       }
     } else {
       let stolenIdx = Math.floor(this.rand() * best.t.hand.length);
       if (isCypher) {
         let bestV = -1;
-        best.t.hand.forEach((c, idx) => {
-          const v = this.cardValue(p, c);
+        for (let idx = 0; idx < best.t.hand.length; idx++) {
+          const v = this.cardValue(p, best.t.hand[idx]);
           if (v > bestV) { bestV = v; stolenIdx = idx; }
-        });
+        }
       }
       const stolen = best.t.hand.splice(stolenIdx, 1)[0];
       p.hand.push(stolen);
-      this.log('💻 ' + this.pn(p) + ' [해킹] 침투! ' + this.pn(best.t) + '의 손패 1장 강탈 (남은 패: ' + best.t.hand.length + '장)', 'attack');
+      if (this.doLog) this.log('💻 ' + this.pn(p) + ' [해킹] 침투! ' + this.pn(best.t) + '의 손패 1장 강탈 (남은 패: ' + best.t.hand.length + '장)', 'attack');
       this.checkBlitz(best.t);
     }
   }
@@ -1780,12 +2214,12 @@ class Match {
         if (t.r === CENTER && t.c === CENTER && this.coreOn()) score += 2.5;
         if (this.hasMineAt(p.r, p.c)) score += 3.0;
         let pExposed = 0;
-        for (const o of this.players) if (o.alive && o !== p && this.canHostile(o, p) && this.canThreaten(o, p.r, p.c)) pExposed++;
+        for (const o of this.players) if (o.alive && o !== p && this.canHostile(o, p) && this.canThreaten(o, p.r, p.c, p)) pExposed++;
         if (pExposed >= 2) score += 2.2;
       } else {
         if (t.role === 'COMMANDER' && t.hp <= 2) {
           let tExposed = 0;
-          for (const o of this.players) if (o.alive && o !== t && this.canHostile(o, t) && this.canThreaten(o, t.r, t.c)) tExposed++;
+          for (const o of this.players) if (o.alive && o !== t && this.canHostile(o, t) && this.canThreaten(o, t.r, t.c, t)) tExposed++;
           if (tExposed >= 2) score += 4.0;
         }
       }
@@ -1796,7 +2230,7 @@ class Match {
     const pr = p.r, pc = p.c;
     p.r = best.r; p.c = best.c;
     best.r = pr; best.c = pc;
-    this.log('🔀 ' + this.pn(p) + ' [위상 스왑] 가동! ' + this.pn(best) + '와 위치 맞바꿈! (P' + p.id + ': ' + (p.r + 1) + ',' + (p.c + 1) + ' ⇄ P' + best.id + ': ' + (best.r + 1) + ',' + (best.c + 1) + ')', 'util');
+    if (this.doLog) this.log('🔀 ' + this.pn(p) + ' [위상 스왑] 가동! ' + this.pn(best) + '와 위치 맞바꿈! (P' + p.id + ': ' + (p.r + 1) + ',' + (p.c + 1) + ' ⇄ P' + best.id + ': ' + (best.r + 1) + ',' + (best.c + 1) + ')', 'util');
     this.checkMine(p);
     this.checkMine(best);
   }
@@ -1867,27 +2301,33 @@ class Match {
     this.useCard(p, i);
     if (what.type === 'cuff_free') {
       what.target.cuffed = false;
-      this.log('⚡🔓 ' + this.pn(p) + ' EMP 칩 가동! ' + this.pn(what.target) + '의 [슈트 락다운] 전자기 펄스로 즉시 과부하 해제!', 'util');
+      if (what.target !== p && what.target.role === 'COMMANDER') {
+        p.pub.helpedCmd++;
+        this.ev.sec[p.id] = Math.min(6, this.ev.sec[p.id] + 1.8);
+        this._evSeq = (this._evSeq || 0) + 1;
+        this.emitRadio(p, 'HELP_CMD', 'ok', false);
+      }
+      if (this.doLog) this.log('⚡🔓 ' + this.pn(p) + ' EMP 칩 가동! ' + this.pn(what.target) + '의 [슈트 락다운] 전자기 펄스로 즉시 과부하 해제!', 'util');
     } else if (what.type === 'module') {
       this.noteAttack(p, best);
       const idx = best.modules.indexOf(what.mod);
       const mod = best.modules.splice(idx, 1)[0];
       this.discard.push(mod);
-      this.log(this.pn(p) + ' EMP 칩: ' + this.pn(best) + '의 [' + mod.name + '] 파괴 (전역 사거리)', 'attack');
+      if (this.doLog) this.log(this.pn(p) + ' EMP 칩: ' + this.pn(best) + '의 [' + mod.name + '] 파괴 (전역 사거리)', 'attack');
     } else if (what.type === 'weapon') {
       this.noteAttack(p, best);
       const wname = best.weapon.name;
       this.discard.push(best.weapon);
       best.weapon = null;
-      this.log(this.pn(p) + ' EMP 칩: ' + this.pn(best) + '의 [' + wname + '] 파괴 (전역 사거리)', 'attack');
+      if (this.doLog) this.log(this.pn(p) + ' EMP 칩: ' + this.pn(best) + '의 [' + wname + '] 파괴 (전역 사거리)', 'attack');
     } else if (what.type === 'hand' && best.hand.length) {
       this.noteAttack(p, best);
       const rIdx = Math.floor(this.rand() * best.hand.length);
-      const discarded = this.discardCard(best, rIdx, 'emp');
-      this.log('⚡ ' + this.pn(p) + ' EMP 칩: ' + this.pn(best) + '의 손패 [' + discarded.name + '] 전기 충격 파괴! (전역 사거리)', 'attack');
+      const discarded = this.discardCard(best, rIdx, 'cost');
+      if (this.doLog) this.log('⚡ ' + this.pn(p) + ' EMP 칩: ' + this.pn(best) + '의 손패 [' + discarded.name + '] 전기 충격 파괴! (전역 사거리)', 'attack');
     } else if (what.type === 'mine') {
       this.mines = this.mines.filter(m => m !== what.mine);
-      this.log('⚡ ' + this.pn(p) + ' EMP 칩 방출: (' + (what.mine.r + 1) + ',' + (what.mine.c + 1) + ')의 [양자 지뢰] 원격 무력화 파괴! (전역 사거리)', 'util');
+      if (this.doLog) this.log('⚡ ' + this.pn(p) + ' EMP 칩 방출: (' + (what.mine.r + 1) + ',' + (what.mine.c + 1) + ')의 [양자 지뢰] 원격 무력화 파괴! (전역 사거리)', 'util');
     }
   }
 
@@ -1908,7 +2348,7 @@ class Match {
     this.useCard(p, i);
     this.noteAttack(p, best);
     best.cuffed = true;
-    this.log(this.pn(p) + ' 슈트 락다운: ' + this.pn(best) + ' 원격 구속 (전역 사거리)', 'attack');
+    if (this.doLog) this.log(this.pn(p) + ' 슈트 락다운: ' + this.pn(best) + ' 원격 구속 (전역 사거리)', 'attack');
   }
 
   tryGrenade(p, pre = false) {
@@ -1929,24 +2369,33 @@ class Match {
     }
     if (i < 0) return;
     const maxDist = p.ch.key === '트래퍼' ? 4 : 3;
+    let anyNear = false;
+    for (let k = 0; k < this.players.length; k++) {
+      const t = this.players[k];
+      if (t.alive && t !== p && manh(p.r, p.c, t.r, t.c) <= maxDist + 1) { anyNear = true; break; }
+    }
+    if (!anyNear) return;
+
+    const myRange = this.rangeOf(p, p.r, p.c, false);
     let bestR = -1, bestC = -1, bestScore = -999;
     let bestMaxW = 0, bestHasKill = false, bestMulti = 0;
-    for (let tr = 0; tr < SIZE; tr++) {
-      for (let tc = 0; tc < SIZE; tc++) {
+    const rMin = Math.max(0, p.r - maxDist), rMax = Math.min(SIZE - 1, p.r + maxDist);
+    for (let tr = rMin; tr <= rMax; tr++) {
+      const rem = maxDist - Math.abs(p.r - tr);
+      const cMin = Math.max(0, p.c - rem), cMax = Math.min(SIZE - 1, p.c + rem);
+      for (let tc = cMin; tc <= cMax; tc++) {
+        if (tr === p.r && tc === p.c) continue;
         if (this.isWall(tr, tc)) continue;
-        const dist = manh(p.r, p.c, tr, tc);
-        if (dist === 0 || dist > maxDist) continue;
-        const blastTiles = [[tr, tc], [tr - 1, tc], [tr + 1, tc], [tr, tc - 1], [tr, tc + 1]];
+        if (manh(p.r, p.c, tr, tc) <= 1) continue; // 자기 자신이 십자 폭발 반경에 포함됨
         let score = 0;
-        let selfInBlast = false;
         let hitEnemies = 0, maxW = 0, hasKill = false;
-        for (const [br, bc] of blastTiles) {
+        for (let b = 0; b < 5; b++) {
+          const br = b === 0 ? tr : b === 1 ? tr - 1 : b === 2 ? tr + 1 : tr;
+          const bc = b === 3 ? tc - 1 : b === 4 ? tc + 1 : tc;
           if (!this.inb(br, bc) || this.isWall(br, bc)) continue;
-          if (p.r === br && p.c === bc) { selfInBlast = true; break; }
           const occ = this.playerAt(br, bc, -1);
           if (occ && occ.alive) {
-            if (occ === p) { selfInBlast = true; break; }
-            if (this.round === 1 && occ.role === 'COMMANDER') { score -= 6.0; continue; }
+            if (this.isCmdProtected(p, occ)) { score -= 6.0; continue; }
             if (this.canHostile(p, occ)) {
               const w = this.adjWeight(p, occ);
               if (w < 0.35) { score -= 2.5; continue; }
@@ -1955,7 +2404,7 @@ class Match {
               if (occ.hp === 1) hasKill = true;
               let val = 2.0 * w;
               if (occ.hp === 1) val += 2.5;
-              if (this.lineWalls(p.r, p.c, occ.r, occ.c) !== 0 || !this.canShoot(p.r, p.c, occ.r, occ.c, this.rangeOf(p, p.r, p.c, false), false)) val += 1.4;
+              if (this.lineWalls(p.r, p.c, occ.r, occ.c) !== 0 || !this.canShoot(p.r, p.c, occ.r, occ.c, myRange, false, occ)) val += 1.4;
               if (TERRAIN[occ.r][occ.c] === 'COVER') val += 0.9;
               if (this.passiveRate(occ, manh(p.r, p.c, occ.r, occ.c)) > 0) val += 0.8;
               score += val;
@@ -1964,7 +2413,6 @@ class Match {
             }
           }
         }
-        if (selfInBlast) continue;
         if (hitEnemies >= 2) score += 2.4;
         if (hitEnemies > 0 && score > bestScore) {
           bestScore = score;
@@ -1981,7 +2429,7 @@ class Match {
       if (pre && !(bestHasKill || bestMulti >= 2 || p.hand.length > p.hp + 1)) return;
       const ec = p.hand[extraIdx];
       const isCoreDef = ec && (ec.type === 'EVADE' || ec.type === 'SIDESTEP' || ec.type === 'BLINK' || ec.type === 'COUNTER' || ec.type === 'HEAL');
-      const defCnt = this.countEvadeCards(p) + p.hand.filter(c => c.type === 'HEAL' || c.type === 'COUNTER').length;
+      const defCnt = this.countEvadeCards(p) + this.countHand(p, 'HEAL') + this.countHand(p, 'COUNTER');
       if (isCoreDef && defCnt <= (p.hp <= 2 ? 2 : 1) && p.hand.length <= p.hp) return;
       // 2장을 소모한 뒤 방어 카드가 0장이 되는 상황이면 킬각·다중타격·초과손패가 아닌 한 아낌
       const remainDef = defCnt - (isCoreDef ? 1 : 0);
@@ -1995,12 +2443,14 @@ class Match {
       const c1 = i === idxMax ? this.useCard(p, idxMax) : this.discardCard(p, idxMax, 'cost');
       const c2 = i === idxMin ? this.useCard(p, idxMin) : this.discardCard(p, idxMin, 'cost');
       this.tc.bomberGrenade = true;
-      const extraName = i === idxMax ? c2.name : c1.name;
-      this.log('🧨 ' + this.pn(p) + ' 유탄 폭격: [레이저 샷] + [' + extraName + '] 조합 → (' + (bestR + 1) + ',' + (bestC + 1) + ') 플라즈마 수류탄 투척!', 'attack');
+      if (this.doLog) {
+        const extraName = i === idxMax ? c2.name : c1.name;
+        this.log('🧨 ' + this.pn(p) + ' 유탄 폭격: [레이저 샷] + [' + extraName + '] 조합 → (' + (bestR + 1) + ',' + (bestC + 1) + ') 플라즈마 수류탄 투척!', 'attack');
+      }
     } else {
       if (bestScore <= 1.2) return;
       const card = this.useCard(p, i);
-      this.log(this.pn(p) + ' [' + card.name + '] 투척 → (' + (bestR + 1) + ',' + (bestC + 1) + ') (폭발 반경 십자 5칸)', 'attack');
+      if (this.doLog) this.log(this.pn(p) + ' [' + card.name + '] 투척 → (' + (bestR + 1) + ',' + (bestC + 1) + ') (폭발 반경 십자 5칸)', 'attack');
     }
     const blastTiles = [[bestR, bestC], [bestR - 1, bestC], [bestR + 1, bestC], [bestR, bestC - 1], [bestR, bestC + 1]];
     const hitList = [];
@@ -2011,8 +2461,9 @@ class Match {
     }
     for (const tgt of hitList) {
       if (this.over || !tgt.alive) continue;
+      if (this.isCmdProtected(p, tgt)) continue;
       this.noteAttack(p, tgt);
-      this.log('💥 ' + this.pn(tgt) + ' 수류탄 폭발 피격!', 'combat');
+      if (this.doLog) this.log('💥 ' + this.pn(tgt) + ' 수류탄 폭발 피격!', 'combat');
       if (this.defend(tgt, p, 1, true)) continue;
       this.damagePlayer(tgt, 1, p, '플라즈마 수류탄');
     }
@@ -2081,11 +2532,11 @@ class Match {
       const card = this.discardCard(p, i, 'cost');
       this.tc.trapperMine = true;
       this.mines.push({ r: bestR, c: bestC, owner: p });
-      this.log('💣 ' + this.pn(p) + ' 급조 지뢰 개조: [' + card.name + '] 분해 → (' + (bestR + 1) + ',' + (bestC + 1) + ')에 양자 지뢰 매설', 'util');
+      if (this.doLog) this.log('💣 ' + this.pn(p) + ' 급조 지뢰 개조: [' + card.name + '] 분해 → (' + (bestR + 1) + ',' + (bestC + 1) + ')에 양자 지뢰 매설', 'util');
     } else {
       const card = this.useCard(p, i);
       this.mines.push({ r: bestR, c: bestC, owner: p });
-      this.log(this.pn(p) + ' [' + card.name + '] 매설 → (' + (bestR + 1) + ',' + (bestC + 1) + ')', 'util');
+      if (this.doLog) this.log(this.pn(p) + ' [' + card.name + '] 매설 → (' + (bestR + 1) + ',' + (bestC + 1) + ')', 'util');
     }
   }
 
@@ -2094,12 +2545,12 @@ class Match {
     const mi = this.mines.findIndex(m => m.r === p.r && m.c === p.c);
     if (mi < 0) return;
     const mine = this.mines[mi];
-    this.log('⚠️ ' + this.pn(p) + ' 양자 지뢰 칸 진입 감지! (기폭 판정 D6)', 'sys');
+    if (this.doLog) this.log('⚠️ ' + this.pn(p) + ' 양자 지뢰 칸 진입 감지! (기폭 판정 D6)', 'sys');
     const roll = this.d6();
     const trig = (mine.owner && mine.owner.ch.key === '트래퍼') ? 2 : 1;
     if (roll <= trig) {
       this.mines.splice(mi, 1);
-      this.log('💥 [양자 지뢰] 기폭! (D6 주사위: ' + roll + ') → ' + this.pn(p) + ' 폭발 직격! (피해 2, 자동 회피 불가)', 'combat');
+      if (this.doLog) this.log('💥 [양자 지뢰] 기폭! (D6 주사위: ' + roll + ') → ' + this.pn(p) + ' 폭발 직격! (피해 2, 자동 회피 불가)', 'combat');
       // 1) 양자 도약 확인 (격벽 무시 2칸 긴급 탈출)
       const bli = p.hand.findIndex(c => c.type === 'BLINK');
       if (bli >= 0 && this.useBlink(p, mine.owner || p)) return;
@@ -2109,39 +2560,35 @@ class Match {
       if (si >= 0 && st) {
         this.useCard(p, si);
         p.r = st.r; p.c = st.c;
-        this.log(this.pn(p) + ' [사이드 스텝] 긴급 도약으로 지뢰 폭발 완전 회피! → (' + (p.r + 1) + ',' + (p.c + 1) + ')', 'evade');
+        if (this.doLog) this.log(this.pn(p) + ' [사이드 스텝] 긴급 도약으로 지뢰 폭발 완전 회피! → (' + (p.r + 1) + ',' + (p.c + 1) + ')', 'evade');
         this.checkMine(p);
         return;
       }
-      // 2) 비상 부스터 확인 (1장당 피해 1 경감)
+      // 3) 비상 부스터 확인 (1장당 피해 1 경감)
       let dmg = 2;
       const evCount = this.countEvadeCards(p);
       if (evCount >= 2) {
         for (let k = 0; k < 2; k++) {
           const bi = this.findEvadeIdx(p);
-          this.useCard(p, bi);
+          this.useCard(p, bi, p.hand[bi].type === 'ATTACK');
         }
-        this.log(this.pn(p) + ' [비상 부스터] 2장 연속 분사! 폭발 충격 완전 상쇄 (피해 0)', 'evade');
+        if (this.doLog) this.log(this.pn(p) + ' [비상 부스터] 2장 연속 분사! 폭발 충격 완전 상쇄 (피해 0)', 'evade');
         dmg = 0;
       } else if (evCount === 1) {
         const bi = this.findEvadeIdx(p);
-        this.useCard(p, bi);
-        this.log(this.pn(p) + ' [비상 부스터] 1장 분사로 충격 경감 (피해 2 → 1)', 'evade');
+        this.useCard(p, bi, p.hand[bi].type === 'ATTACK');
+        if (this.doLog) this.log(this.pn(p) + ' [비상 부스터] 1장 분사로 충격 경감 (피해 2 → 1)', 'evade');
         dmg = 1;
       }
       if (dmg > 0) {
         this.damagePlayer(p, dmg, mine.owner, '양자 지뢰');
       }
     } else {
-      this.log('🛡️ [양자 지뢰] 불발 (D6 주사위: ' + roll + ' ≠ 1) - 지뢰 상태 유지', 'sys');
+      if (this.doLog) this.log('🛡️ [양자 지뢰] 불발 (D6 주사위: ' + roll + ' ≠ 1) - 지뢰 상태 유지', 'sys');
     }
   }
 
-  /* 사격 */
-  bomberExtra(p, exceptIdx) {
-    const i = this.lowestIdx(p, exceptIdx);
-    return i >= 0 && (p.hand.length > p.hp || this.handCardValue(p, i) <= 2.75) ? i : -1;
-  }
+  /* ---------- 사격 ---------- */
   passiveRate(t, dist) {
     let s = 0;
     if (t.ch.key === '디펜더') s++;
@@ -2156,19 +2603,6 @@ class Match {
     const w = this.lineWalls(p.r, p.c, t.r, t.c);
     return w >= 0 && w <= 1;
   }
-  /* 봄버 관통탄: 선택 방향의 사거리 안 모든 승무원 */
-  pierceHits(p, dr, dc, range) {
-    const hits = [];
-    let walls = 0;
-    for (let k = 1; k <= range; k++) {
-      const r = p.r + dr * k, c = p.c + dc * k;
-      if (!this.inb(r, c)) break;
-      if (this.isWall(r, c)) { walls++; if (walls > 1) break; continue; }
-      const x = this.playerAt(r, c, p.id);
-      if (x) hits.push(x);
-    }
-    return hits;
-  }
   /* 그랩 사용 가치(피해 1 외에 추가로 기대하는 이득) */
   grabBonus(p, t, normal) {
     let b = 0;
@@ -2182,42 +2616,24 @@ class Match {
       if (other) { b += 0.5 + (this.adjWeight(p, other) >= 0.5 ? 0.5 : -0.5); break; }
       r = nr; c = nc;
     }
-    const atkCards = p.hand.filter(x => x.type === 'ATTACK' || x.type === 'KNOCKBACK' || x.type === 'GRENADE').length;
-    if (!normal && atkCards > 0) b += 0.6;
+    const lh = this.countHand(p, 'ATTACK');
+    const hasAtkCards = lh > 0 || this.hasHand(p, 'KNOCKBACK') || this.hasHand(p, 'GRENADE');
+    if (!normal && hasAtkCards) b += 0.6;
     if (TERRAIN[t.r][t.c] === 'COVER' && manh(p.r, p.c, t.r, t.c) > 1) b += 0.25;
-    const lh = p.hand.filter(c => c.type === 'ATTACK').length;
     if ((p.ch.key === '거너' || (p.weapon && p.weapon.burst)) && lh >= 1) b += 0.6 * Math.min(3, lh);   // 그랩 → 난사 콤보
     if (p.hp <= 2) b -= 0.3;
     return b;
   }
-  planPierce(p, t, li, normal) {
-    if (p.r !== t.r && p.c !== t.c) return null;
-    const ei = this.bomberExtra(p, li);
-    if (ei < 0) return null;
-    const dr = Math.sign(t.r - p.r), dc = Math.sign(t.c - p.c);
-    const hits = this.pierceHits(p, dr, dc, this.rangeOf(p, p.r, p.c, false));
-    if (!hits.includes(t)) return null;
-    for (const x of hits) {
-      if (!this.canHostile(p, x) || this.adjWeight(p, x) < 0.2) return null;
-    }
-    const dist = manh(p.r, p.c, t.r, t.c);
-    const needs = !normal;
-    const multi = hits.length >= 2;
-    const dodgy = normal && this.passiveRate(t, dist) > 0 && (p.hand.length > p.hp || this.handCardValue(p, ei) <= 2.55);
-    if (!(needs || multi || dodgy)) return null;
-    return hits;
-  }
   volley(p, pre) {
     let guard = 14;
     const declined = new Set();
-    const bomber = p.ch.key === '봄버';
     const gunner = p.ch.key === '거너';
     const burstWeapon = !!(p.weapon && p.weapon.burst);
     const isShotgun = !!(p.weapon && p.weapon.name === '플라즈마 샷건');
     while (guard-- > 0 && !this.over && p.alive) {
       let li = p.hand.findIndex(c => c.type === 'ATTACK');
       if (li < 0 && p.ch.key === '스위처' && p.switcherRound !== this.round) {
-        const evCnt = p.hand.filter(c => c.type === 'EVADE').length;
+        const evCnt = this.countHand(p, 'EVADE');
         if (evCnt >= 2 || p.hp >= 3 || p.hand.length > p.hp) {
           li = p.hand.findIndex(c => c.type === 'EVADE');
         }
@@ -2225,12 +2641,14 @@ class Match {
       const ki = p.hand.findIndex(c => c.type === 'KNOCKBACK');
       const gi = p.hand.findIndex(c => c.type === 'GRAB');
       if (li < 0 && ki < 0 && gi < 0) break;
-      const lasersHand = p.hand.filter(c => c.type === 'ATTACK').length + (p.ch.key === '스위처' && p.switcherRound !== this.round && p.hand.some(c => c.type === 'EVADE') ? 1 : 0);
+      const lasersHand = this.countHand(p, 'ATTACK') + (p.ch.key === '스위처' && p.switcherRound !== this.round && this.hasHand(p, 'EVADE') ? 1 : 0);
       const rg = this.rangeOf(p, p.r, p.c, false);
+      const hasDef = this.countEvadeCards(p) >= 1 || this.hasHand(p, 'HEAL') || this.hasHand(p, 'COUNTER');
+      const focusAlive = this.tc.focusId ? this.players.some(x => x.id === this.tc.focusId && x.alive) : false;
       let best = null;
       for (const t of this.players) {
         if (!t.alive || t === p || declined.has(t.id) || !this.canHostile(p, t)) continue;
-        if (this.round === 1 && t.role === 'COMMANDER') continue;   // 제1라운드 사령관 보호 (평화 조약)
+        if (this.isCmdProtected(p, t)) continue;
         const w = this.adjWeight(p, t);
         if (w <= 0.01) continue;
         const combo = (gunner || burstWeapon || isShotgun) && lasersHand >= 1 && gi >= 0;
@@ -2238,22 +2656,25 @@ class Match {
         const dist = manh(p.r, p.c, t.r, t.c);
         const berserkRage = p.ch.key === '버서커' && p.hp <= 2 && this.tc.lasers < 2;
         const unl = burstWeapon || berserkRage || (gunner && (this.gunnerMode === 'old' || ((this.gunnerMode === 'free' || this.gunnerMode === 'v8') && dist === 1) || (this.gunnerMode === 'two' && this.tc.lasers < 2)));
-        const hasDef = this.countEvadeCards(p) >= 1 || p.hand.some(c => c.type === 'HEAL' || c.type === 'COUNTER');
         const isFocus = this.tc.focusId === t.id;
-        const focusAlive = this.tc.focusId ? this.players.some(x => x.id === this.tc.focusId && x.alive) : false;
         const smartBurst = !gunner || this.tc.lasers === 0 || isFocus || (!focusAlive && (w >= 1.35 || t.hp <= 2 || p.hand.length > p.hp || (w >= 1.0 && hasDef))) || (w >= 1.6 || t.hp === 1);
         const laserOk = li >= 0 && (this.tc.lasers === 0 || (unl && smartBurst));
         const knockOk = ki >= 0 && this.tc.knocks === 0;
         const grabOk = gi >= 0 && this.tc.grabs === 0;
-        const normal = this.canShoot(p.r, p.c, t.r, t.c, rg, false);
-        const cands = [];
+        const normal = this.canShoot(p.r, p.c, t.r, t.c, rg, false, t);
         const focusMul = isFocus ? 1.3 : 1.0;
-        if (normal && laserOk) cands.push({ kind: 'L', m: (isShotgun ? 1.7 : 1.0) * focusMul, sw: w });
-        if (normal && knockOk) cands.push({ kind: 'K', m: 0.98 * focusMul, sw: w });
-        if (grabOk && this.canGrab(p, t)) cands.push({ kind: 'G', m: (1.05 + this.grabBonus(p, t, normal)) * focusMul, sw: w });
-        for (const cd of cands) {
-          const sc = cd.sw * cd.m * (1 + 0.3 * (t.maxHp - t.hp)) * (t.hp <= (isShotgun ? 2 : 1) ? 1.4 : 1) * (0.92 + 0.16 * this.rand());
-          if (!best || sc > best.sc) best = { t, w, sc, kind: cd.kind, hits: cd.hits || null, dist };
+        const hpScale = (1 + 0.3 * (t.maxHp - t.hp)) * (t.hp <= (isShotgun ? 2 : 1) ? 1.4 : 1);
+        if (normal && laserOk) {
+          const sc = w * (isShotgun ? 1.7 : 1.0) * focusMul * hpScale * (0.92 + 0.16 * this.rand());
+          if (!best || sc > best.sc) best = { t, w, sc, kind: 'L', dist };
+        }
+        if (normal && knockOk) {
+          const sc = w * 0.98 * focusMul * hpScale * (0.92 + 0.16 * this.rand());
+          if (!best || sc > best.sc) best = { t, w, sc, kind: 'K', dist };
+        }
+        if (grabOk && this.canGrab(p, t)) {
+          const sc = w * (1.05 + this.grabBonus(p, t, normal)) * focusMul * hpScale * (0.92 + 0.16 * this.rand());
+          if (!best || sc > best.sc) best = { t, w, sc, kind: 'G', dist };
         }
       }
       if (!best) break;
@@ -2261,33 +2682,24 @@ class Match {
       if (!blitzFlush && this.rand() > Math.min(1, best.w * this.aggr())) { declined.add(best.t.id); continue; }
       if (!this.tc.focusId) this.tc.focusId = best.t.id;
       let card;
-      if (best.kind === 'L' || best.kind === 'P') {
-        card = this.useCard(p, li);
-        if (p.ch.key === '스위처' && card.type === 'EVADE') p.switcherRound = this.round;
+      if (best.kind === 'L') {
+        const isConv = p.hand[li].type === 'EVADE';
+        card = this.useCard(p, li, isConv);
         this.tc.lasers++;
+      } else if (best.kind === 'K') {
+        card = this.useCard(p, ki);
+        this.tc.knocks++;
+      } else {
+        card = this.useCard(p, gi);
+        this.tc.grabs++;
       }
-      else if (best.kind === 'K') { card = this.useCard(p, ki); this.tc.knocks++; }
-      else { card = this.useCard(p, gi); this.tc.grabs++; }
-      if (best.kind === 'P') {
-        const ei = this.lowestIdx(p, -1);
-        if (ei >= 0) this.discardCard(p, ei, 'cost');
-        this.doPierce(p, best.hits);
-      } else if (best.kind === 'G') this.doGrab(p, best.t, card, best.dist);
+      if (best.kind === 'G') this.doGrab(p, best.t, card, best.dist);
       else this.doAttack(p, best.t, card, false, best.dist);
-    }
-  }
-  doPierce(att, hits) {
-    this.log(this.pn(att) + ' 관통 폭파: 사선 위 ' + hits.length + '명 공격', 'attack');
-    for (const x of hits) {
-      if (this.over || !x.alive) continue;
-      this.noteAttack(att, x);
-      if (this.defend(x, att, manh(att.r, att.c, x.r, x.c), true)) continue;
-      this.damagePlayer(x, 1, att, '관통탄');
     }
   }
   doGrab(att, tgt, card, dist) {
     this.noteAttack(att, tgt);
-    this.log(this.pn(att) + ' → ' + this.pn(tgt) + ' [자력 그랩]', 'attack');
+    if (this.doLog) this.log(this.pn(att) + ' → ' + this.pn(tgt) + ' [자력 그랩]', 'attack');
     if (this.defend(tgt, att, dist, false)) return;
     this.damagePlayer(tgt, 1, att, card.name);
     if (!tgt.alive || this.over) return;
@@ -2297,7 +2709,7 @@ class Match {
       if (nr === att.r && nc === att.c) break;
       const other = this.playerAt(nr, nc, tgt.id);
       if (this.isWall(nr, nc) || other) {
-        this.log(this.pn(tgt) + ' 견인 충돌', 'combat');
+        if (this.doLog) this.log(this.pn(tgt) + ' 견인 충돌', 'combat');
         if (!this.collImmune(tgt) && this.d6() >= 4) this.damagePlayer(tgt, 1, att, '충돌');
         if (other && !this.over && other.alive && !this.collImmune(other) && this.d6() >= 4) this.damagePlayer(other, 1, att, '충돌');
         this.checkMine(tgt);
@@ -2305,7 +2717,7 @@ class Match {
       }
       tgt.r = nr; tgt.c = nc;
     }
-    this.log(this.pn(tgt) + ' 견인됨 → (' + (tgt.r + 1) + ',' + (tgt.c + 1) + ')', 'combat');
+    if (this.doLog) this.log(this.pn(tgt) + ' 견인됨 → (' + (tgt.r + 1) + ',' + (tgt.c + 1) + ')', 'combat');
     this.checkMine(tgt);
   }
   doAttack(att, tgt, card, pierce, dist) {
@@ -2313,7 +2725,7 @@ class Match {
     const isLaser = card.type === 'ATTACK' || (att.ch.key === '스위처' && card.type === 'EVADE');
     const isShotgun = isLaser && att.weapon && att.weapon.name === '플라즈마 샷건';
     const initDmg = isShotgun ? 2 : 1;
-    this.log(this.pn(att) + ' → ' + this.pn(tgt) + ' [' + card.name + ']' + (card.type === 'EVADE' ? ' (출력 변환 사격)' : '') + (isShotgun ? ' (샷건 직격 피해 2)' : (pierce ? ' 관통' : '')), 'attack');
+    if (this.doLog) this.log(this.pn(att) + ' → ' + this.pn(tgt) + ' [' + card.name + ']' + (card.type === 'EVADE' ? ' (출력 변환 사격)' : '') + (isShotgun ? ' (샷건 직격 피해 2)' : (pierce ? ' 관통' : '')), 'attack');
     const taken = this.defendDamage(tgt, att, dist, pierce, initDmg);
     if (taken > 0) {
       this.damagePlayer(tgt, taken, att, isShotgun ? '플라즈마 샷건' : card.name);
@@ -2331,6 +2743,7 @@ class Match {
   collImmune(x) { return this.defMode === 'imm' && x.ch.key === '디펜더'; }
   findBlink(tgt, att) {
     let best = null, bs = -1e9;
+    const attRg = att ? this.rangeOf(att, att.r, att.c, false) : 0;
     for (let dr = -2; dr <= 2; dr++) {
       for (let dc = -2; dc <= 2; dc++) {
         const d = Math.abs(dr) + Math.abs(dc);
@@ -2339,12 +2752,12 @@ class Match {
         if (!this.inb(nr, nc) || this.isWall(nr, nc) || this.closed[nr][nc] || this.playerAt(nr, nc, tgt.id)) continue;
         let s = 1.0;
         if (tgt.ch.key !== '트래퍼' && this.hasMineAt(nr, nc)) s -= (tgt.hp <= 2 ? 6.5 : 3.8);
-        const exposed = att ? this.canShoot(att.r, att.c, nr, nc, this.rangeOf(att, att.r, att.c, false), false) : false;
+        const exposed = att ? this.canShoot(att.r, att.c, nr, nc, attRg, false, tgt) : false;
         if (exposed) s -= 3.5;
         if (att && this.lineWalls(att.r, att.c, nr, nc) !== 0) s += 2.2;
         for (const t of this.players) {
           if (!t.alive || t === tgt || (att && t === att) || !this.canHostile(t, tgt)) continue;
-          if (this.canShoot(t.r, t.c, nr, nc, this.rangeOf(t, t.r, t.c, false), false)) s -= 1;
+          if (this.canShoot(t.r, t.c, nr, nc, this.rangeOf(t, t.r, t.c, false), false, tgt)) s -= 1;
         }
         if (TERRAIN[nr][nc] === 'COVER') s += 0.8;
         if (s > bs) { bs = s; best = { r: nr, c: nc, exposed }; }
@@ -2359,7 +2772,7 @@ class Match {
     if (!best) return false;
     this.useCard(tgt, bi);
     tgt.r = best.r; tgt.c = best.c;
-    this.log('🌀 ' + this.pn(tgt) + ' [양자 도약]! 격벽 무시 순간이동 회피 → (' + (best.r + 1) + ',' + (best.c + 1) + ')', 'evade');
+    if (this.doLog) this.log('🌀 ' + this.pn(tgt) + ' [양자 도약]! 격벽 무시 순간이동 회피 → (' + (best.r + 1) + ',' + (best.c + 1) + ')', 'evade');
     this.checkMine(tgt);
     return true;
   }
@@ -2371,7 +2784,7 @@ class Match {
     const ci = tgt.hand.findIndex(c => c.type === 'COUNTER');
     if (ci >= 0 && att && att.alive) {
       this.useCard(tgt, ci);
-      this.log('🛡️⚡ ' + this.pn(tgt) + ' [카운터 쉴드] 발동! 공격 무효화 및 ' + this.pn(att) + '에게 피해 1 반사!', 'evade');
+      if (this.doLog) this.log('🛡️⚡ ' + this.pn(tgt) + ' [카운터 쉴드] 발동! 공격 무효화 및 ' + this.pn(att) + '에게 피해 1 반사!', 'evade');
       this.damagePlayer(att, 1, tgt, '카운터 쉴드');
       return 0;
     }
@@ -2379,8 +2792,8 @@ class Match {
       const th = this.passiveThreshold(tgt, dist);
       if (th) {
         const roll = this.d6();
-        if (roll >= th) { this.log(this.pn(tgt) + ' 자동 회피 성공 (D6 ' + roll + ' ≥ ' + th + ')', 'evade'); return 0; }
-        this.log(this.pn(tgt) + ' 자동 회피 실패 (D6 ' + roll + ' < ' + th + ')', 'sys');
+        if (roll >= th) { if (this.doLog) this.log(this.pn(tgt) + ' 자동 회피 성공 (D6 ' + roll + ' ≥ ' + th + ')', 'evade'); return 0; }
+        if (this.doLog) this.log(this.pn(tgt) + ' 자동 회피 실패 (D6 ' + roll + ' < ' + th + ')', 'sys');
       }
     }
     const bi = this.findEvadeIdx(tgt);
@@ -2394,8 +2807,8 @@ class Match {
     if (dmg === 1) {
       if (bi >= 0) {
         const k = this.findEvadeIdx(tgt);
-        const used = this.useCard(tgt, k);
-        this.log(this.pn(tgt) + ' [' + used.name + ']로 피해 무효', 'evade');
+        const used = this.useCard(tgt, k, tgt.hand[k].type === 'ATTACK');
+        if (this.doLog) this.log(this.pn(tgt) + ' [' + used.name + ']로 피해 무효', 'evade');
         return 0;
       }
       if (si >= 0 && this.useSidestep(tgt, att)) return 0;
@@ -2408,14 +2821,14 @@ class Match {
       if (evCount >= 2) {
         for (let k = 0; k < 2; k++) {
           const ki = this.findEvadeIdx(tgt);
-          this.useCard(tgt, ki);
+          this.useCard(tgt, ki, tgt.hand[ki].type === 'ATTACK');
         }
-        this.log(this.pn(tgt) + ' [비상 부스터] 2장 연속 분사! 샷건 탄착 완전 상쇄 (피해 0)', 'evade');
+        if (this.doLog) this.log(this.pn(tgt) + ' [비상 부스터] 2장 연속 분사! 샷건 탄착 완전 상쇄 (피해 0)', 'evade');
         return 0;
       } else if (evCount === 1) {
         const ki = this.findEvadeIdx(tgt);
-        this.useCard(tgt, ki);
-        this.log(this.pn(tgt) + ' [비상 부스터] 1장 분사로 충격 경감 (피해 2 → 1)', 'evade');
+        this.useCard(tgt, ki, tgt.hand[ki].type === 'ATTACK');
+        if (this.doLog) this.log(this.pn(tgt) + ' [비상 부스터] 1장 분사로 충격 경감 (피해 2 → 1)', 'evade');
         return 1;
       }
       return 2;
@@ -2426,16 +2839,17 @@ class Match {
   }
   findSidestep(tgt, att) {
     let best = null, bs = -1e9;
+    const attRg = this.rangeOf(att, att.r, att.c, false);
     for (const [dr, dc] of DIRS) {
       const nr = tgt.r + dr, nc = tgt.c + dc;
       if (this.isWall(nr, nc) || this.playerAt(nr, nc, tgt.id)) continue;
       let s = 0;
       if (tgt.ch.key !== '트래퍼' && this.hasMineAt(nr, nc)) s -= (tgt.hp <= 2 ? 6.5 : 3.8);
-      const exposed = this.canShoot(att.r, att.c, nr, nc, this.rangeOf(att, att.r, att.c, false), false);
+      const exposed = this.canShoot(att.r, att.c, nr, nc, attRg, false, tgt);
       if (exposed) s -= 3;
       for (const t of this.players) {
         if (!t.alive || t === tgt || t === att || !this.canHostile(t, tgt)) continue;
-        if (this.canShoot(t.r, t.c, nr, nc, this.rangeOf(t, t.r, t.c, false), false)) s -= 1;
+        if (this.canShoot(t.r, t.c, nr, nc, this.rangeOf(t, t.r, t.c, false), false, tgt)) s -= 1;
       }
       const ring = ringOf(nr, nc);
       if (ring <= 3 && this.shrinkStart + ring * this.shrinkEvery - this.round <= 1) s -= 2;
@@ -2453,7 +2867,7 @@ class Match {
     if (!best) return false;
     this.useCard(tgt, si);
     tgt.r = best.r; tgt.c = best.c;
-    this.log(this.pn(tgt) + ' [사이드 스텝] 회피 → (' + (best.r + 1) + ',' + (best.c + 1) + ')', 'evade');
+    if (this.doLog) this.log(this.pn(tgt) + ' [사이드 스텝] 회피 → (' + (best.r + 1) + ',' + (best.c + 1) + ')', 'evade');
     this.checkMine(tgt);
     return true;
   }
@@ -2463,7 +2877,7 @@ class Match {
       const nr = tgt.r + dr, nc = tgt.c + dc;
       const other = this.playerAt(nr, nc, tgt.id);
       if (this.isWall(nr, nc) || other) {
-        this.log(this.pn(tgt) + ' 넉백 충돌', 'combat');
+        if (this.doLog) this.log(this.pn(tgt) + ' 넉백 충돌', 'combat');
         if (!this.collImmune(tgt) && this.d6() >= 4) this.damagePlayer(tgt, 1, att, '충돌');
         if (other && !this.over && other.alive && !this.collImmune(other) && this.d6() >= 4) this.damagePlayer(other, 1, att, '충돌');
         this.checkMine(tgt);
@@ -2471,7 +2885,7 @@ class Match {
       }
       tgt.r = nr; tgt.c = nc;
     }
-    this.log(this.pn(tgt) + ' 2칸 밀려남 → (' + (tgt.r + 1) + ',' + (tgt.c + 1) + ')', 'combat');
+    if (this.doLog) this.log(this.pn(tgt) + ' 2칸 밀려남 → (' + (tgt.r + 1) + ',' + (tgt.c + 1) + ')', 'combat');
     this.checkMine(tgt);
   }
 
@@ -2557,6 +2971,7 @@ function cfgFromUI() {
   return {
     players: +$('cPlayers').value, shrinkStart: +$('cShrink').value, shrinkEvery: +$('cEvery').value, cmdBonus: +$('cCmd').value, immuneRounds: +$('cImm').value, spies6, spiesKnow, sniperHp: +$('cSniper').value, cuffMode: $('cCuff').value, spyAI: $('cSpyAI').value,
     ...GUN[$('cGun').value], ...DEF[$('cDef').value],
+    r1Peace: $('cImmune').value === '1',
     cmdImmune: $('cImmune').value === '1' && $('cImm').value !== '0', suddenDeath: $('cSudden').value === '1', drawRule: $('cDraw').value
   };
 }
@@ -2591,6 +3006,9 @@ if ($('tabPlay')) $('tabPlay').onclick = () => showTab('Play');
 $('tabRep').onclick = () => showTab('Rep');
 $('tabMap').onclick = () => showTab('Map');
 $('tabRule').onclick = () => showTab('Rule');
+$('cMap').onchange = () => {
+  if ($('cMap').value !== 'custom') loadPreset($('cMap').value);
+};
 
 /* ---------- 배치 시뮬레이션 ---------- */
 let cancel = false, running = false, last = null, heatMode = 'visit', lastLabel = '', saved = null;
@@ -2598,15 +3016,16 @@ async function batch(cfg, N, label) {
   const agg = new Agg(cfg);
   let done = 0;
   while (done < N && !cancel) {
-    const k = Math.min(20, N - done);
-    for (let i = 0; i < k; i++) {
-      const m = new Match(Object.assign({}, cfg, { seed: (Math.random() * 4294967296) >>> 0 }));
-      m.playToEnd(); agg.add(m);
-    }
-    done += k;
+    const deadline = performance.now() + 14;
+    do {
+      const m = new Match(cfg, (Math.random() * 4294967296) >>> 0);
+      m.playToEnd();
+      agg.add(m);
+      done++;
+    } while (done < N && !cancel && performance.now() < deadline);
     $('progBar').style.width = (100 * done / N) + '%';
     $('progTxt').textContent = label + ' ' + done.toLocaleString() + ' / ' + N.toLocaleString();
-    await new Promise(r => setTimeout(r, 0));
+    if (done < N && !cancel) await new Promise(r => setTimeout(r, 0));
   }
   return agg;
 }
@@ -2645,7 +3064,7 @@ async function runCompare() {
   }
   $('tCmp').innerHTML = h;
   $('progTxt').textContent = '비교 완료 · 인원당 ' + N.toLocaleString() + '판';
-  $('cmpCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  try { $('cmpCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } catch (_) { $('cmpCard').scrollIntoView(); }
 }
 function renderAB(A, B) {
   $('abCard').classList.remove('hidden');
@@ -2667,6 +3086,7 @@ $('bSave').onclick = () => {
 };
 $('bRun').onclick = runSim; $('bCmp').onclick = runCompare; $('bStop').onclick = () => { cancel = true; };
 $('bReset').onclick = () => {
+  loadPreset('v0.8');
   $('cPlayers').value = '5';
   $('cN').value = '1000';
   $('cShrink').value = '4';
@@ -2702,19 +3122,19 @@ function render(a) {
   const deaths = Object.values(a.causes).reduce((x, y) => x + y, 0) || 1;
   const cs = k => fmt(100 * (a.causes[k] || 0) / deaths, 0) + '%';
   $('stats').innerHTML = [
-    ['평균 경기 길이', fmt(a.roundsSum / N, 2) + ' R'],
-    ['첫 탈락 평균', a.firstDeathN ? fmt(a.firstDeathSum / a.firstDeathN, 2) + ' R' : '-'],
-    ['사령관 탈락률', fmt(100 * a.cmdDied / N) + '%'],
-    ['3×3 이후까지 간 경기', fmt(100 * a.suddenReached / N) + '%'],
-    ['교전 사망 비율', cs('교전')],
-    ['감압 사망 비율', cs('감압')],
-    ['무승부 비율', fmt(100 * a.wins.DRAW / N) + '%'],
-    ['산소 고갈 사망 비율', cs('산소 고갈')],
-    ['경기당 총 피해', fmt(a.dmgTotal / N)],
-    ['경기당 회복 (패치/코어/의무실)', fmt(a.heal.patch / N) + ' / ' + fmt(a.heal.core / N) + ' / ' + fmt(a.heal.med / N)],
-    ['패치 만피 폐기 (판당)', fmt(a.patchFull / N, 2)],
-    ['패치 반응 사용 (판당)', fmt(a.heal.react / N, 2)]
-  ].map(x => '<div class="st"><b>' + x[1] + '</b><span>' + x[0] + '</span></div>').join('');
+    ['평균 경기 길이', fmt(a.roundsSum / N, 2) + ' R', ''],
+    ['첫 탈락 평균', a.firstDeathN ? fmt(a.firstDeathSum / a.firstDeathN, 2) + ' R' : '-', ''],
+    ['사령관 탈락률', fmt(100 * a.cmdDied / N) + '%', ''],
+    ['3×3 이후까지 간 경기', fmt(100 * a.suddenReached / N) + '%', ''],
+    ['교전 사망 비율', cs('교전'), ''],
+    ['감압 사망 비율', cs('감압'), ''],
+    ['무승부 비율', fmt(100 * a.wins.DRAW / N) + '%', ''],
+    ['산소 고갈 사망 비율', cs('산소 고갈'), ''],
+    ['경기당 총 피해', fmt(a.dmgTotal / N), ''],
+    ['경기당 회복', fmt(a.heal.patch / N) + ' / ' + fmt(a.heal.core / N) + ' / ' + fmt(a.heal.med / N), '수리 패치 / 중앙 코어 / 응급 의무실 순'],
+    ['수리 패치 만피 폐기', fmt(a.patchFull / N, 2), '최대 내구도 상태에서 정리 단계에 폐기된 판당 평균 장수'],
+    ['수리 패치 반응 사용', fmt(a.heal.react / N, 2), '치명상 순간 자동 발동된 판당 평균 장수']
+  ].map(x => '<div class="st"' + (x[2] ? ' title="' + x[2] + '"' : '') + '><b>' + x[1] + '</b><span>' + x[0] + '</span></div>').join('');
 
   // 특수 지형 활용 집계
   let tW = 0, tM = 0, tS = 0, tC = 0, tCovV = 0, tCovC = 0;
@@ -2732,13 +3152,13 @@ function render(a) {
   }
 
   $('tileStatsGrid').innerHTML = [
-    ['무 무기고 드로우', fmt(tW / N, 2) + ' 회'],
-    ['회 의무실 회복 이용', fmt(tM / N, 2) + ' 회'],
-    ['센 보안 센서실 스캔', fmt(tS / N, 2) + ' 회'],
-    ['★ 중앙 코어 결전 체류', fmt(tC / N, 2) + ' 회'],
-    ['엄 엄폐막 체류 빈도', fmt(tCovV / N, 2) + ' 회'],
-    ['엄 엄폐 방호 교전 (피격)', fmt(tCovC / N, 2) + ' 회']
-  ].map(x => '<div class="st"><b>' + x[1] + '</b><span>' + x[0] + '</span></div>').join('');
+    ['무 무기고 드로우', fmt(tW / N, 2) + ' 회', ''],
+    ['회 의무실 회복 이용', fmt(tM / N, 2) + ' 회', ''],
+    ['센 보안 센서실 스캔', fmt(tS / N, 2) + ' 회', ''],
+    ['★ 중앙 코어 결전 체류', fmt(tC / N, 2) + ' 회', ''],
+    ['엄 엄폐막 체류 빈도', fmt(tCovV / N, 2) + ' 회', ''],
+    ['엄 엄폐 방호 교전', fmt(tCovC / N, 2) + ' 회', '엄폐막 칸에서 발생한 판당 평균 피격 횟수']
+  ].map(x => '<div class="st"' + (x[2] ? ' title="' + x[2] + '"' : '') + '><b>' + x[1] + '</b><span>' + x[0] + '</span></div>').join('');
   $('mapSummaryBadge').textContent = '현재 맵: ' + ($('cMap').options[$('cMap').selectedIndex].text);
 
   const mx = Math.max.apply(null, a.hist) || 1;
@@ -2789,9 +3209,9 @@ function render(a) {
       de: c.drawn ? (100 * c.death / c.drawn) : 0
     };
   }).sort((x, y) => x.u - y.u);
-  let cd = '<tr><th>카드</th><th class="num">매수</th><th class="num">판당 드로우</th><th class="num">사용</th><th class="num">정리 폐기</th><th class="num">비용 폐기</th><th class="num">사망 시 손실</th></tr>';
+  let cd = '<tr><th>카드</th><th class="num">매수</th><th class="num">누적 드로우</th><th class="num">판당 드로우</th><th class="num">사용</th><th class="num">정리 폐기</th><th class="num">비용 폐기</th><th class="num">사망 시 손실</th></tr>';
   rows.forEach(r => {
-    cd += '<tr><td>' + r.k + '</td><td class="num">' + r.cnt + '장</td><td class="num">' + r.d.toLocaleString() + ' <small style="color:var(--muted)">(' + fmt(r.perGame, 1) + ')</small></td><td class="num ' + (r.u < 25 ? 'lo' : '') + '">' + fmt(r.u, 0) + '%</td><td class="num ' + (r.cl > 40 ? 'hi' : '') + '">' + fmt(r.cl, 0) + '%</td><td class="num">' + fmt(r.co, 0) + '%</td><td class="num">' + fmt(r.de, 0) + '%</td></tr>';
+    cd += '<tr><td>' + r.k + '</td><td class="num">' + r.cnt + '장</td><td class="num">' + r.d.toLocaleString() + '</td><td class="num">' + fmt(r.perGame, 1) + '</td><td class="num ' + (r.u < 25 ? 'lo' : '') + '">' + fmt(r.u, 0) + '%</td><td class="num ' + (r.cl > 40 ? 'hi' : '') + '">' + fmt(r.cl, 0) + '%</td><td class="num">' + fmt(r.co, 0) + '%</td><td class="num">' + fmt(r.de, 0) + '%</td></tr>';
   });
   $('tCard').innerHTML = cd;
 }
@@ -2906,7 +3326,7 @@ const RULE_HTML = `
 <li>섀도우 (HP 4): [에너지 엄폐막] 위에서 거리 2 이상 적의 단일 공격·방해 카드(레이저·넉백·그랩·해킹) 표적 지정 불가, 엄폐막에서 다른 칸으로 이동한 턴에는 모든 공격 사거리 +1.</li>
 <li>트래퍼 (HP 4): 지뢰 매설 사거리 3(격벽 무시)·수류탄 투척 사거리 4, 턴당 1회 불필요 장비/잉여 카드로 급조 지뢰 매설(최대 3개), 트래퍼 매설 지뢰는 D6 1~2 기폭, 본인은 모든 지뢰 면역.</li>
 <li>스위처 (HP 4, 칼라미티 자넷): 라운드당 1회, 손패의 [레이저 샷]을 [비상 부스터]로 방어에 쓰거나 [비상 부스터]를 [레이저 샷]으로 공격에 호환 사용 가능.</li>
-<li>오라클 (HP 4, 키트 칼슨): 드로우 단계 시 덱 맨 위 3장을 확인한 뒤 가장 유리한 2장을 골라 가져오고, 남은 1장은 덱에 반납하며 다음 플레이어의 드로우 정보를 파악.</li>
+<li>오라클 (HP 4, 키트 칼슨): 드로우 단계 시 덱 맨 위 3장을 확인한 뒤 가장 유리한 2장을 골라 가져오고, 남은 1장은 덱 맨 위에 반납하며 다음 플레이어의 드로우 정보를 파악.</li>
 <li>버서커 (HP 4): 자신의 현재 내구도가 2 이하일 때, 드로우 단계에 전술 카드 1장 추가 드로우 + 모든 공격 사거리 +1 + 레이저 샷 1장 추가 사용 가능.</li>
 <li>블리츠 (HP 4, 수지 라파예트): 자신의 손패가 0장이 되는 즉시 덱에서 전술 카드 1장을 자동 드로우 (턴당 최대 2회).</li>
 <li>미러 (HP 3, 엘 그린고): 다른 승무원의 공격으로 내구도 피해를 입을 때마다 공격자의 손패에서 무작위로 카드 1장을 즉시 강탈.</li>
@@ -2936,14 +3356,16 @@ const RULE_HTML = `
 </ul>
 
 <h2 style="margin-top:20px">AI 행동 모델</h2>
-<p class="sub">AI는 자기 역할과 공개 정보(사령관 정체, 누가 누구를 쐈는지, 탈락자 정체)와 센서실로 얻은 정보만 사용합니다.</p>
+<p class="sub">AI는 자기 역할과 공개 정보(사령관 정체, 누가 누구를 쐈는지, 탈락자 정체)와 센서실 손패 스캔 정보만 사용합니다.</p>
 <ul>
 <li><b>이동 전/후 분할 행동:</b> 장비 장착, 시스템 리커버리, 수리 패치는 이동 전에 하고, 우선 표적·마무리 상황·그랩 콤보에서는 이동 전에 선제 사격합니다. 이동 후에 남은 카드로 다시 사격하고 수갑·EMP를 씁니다.</li>
 <li><b>그랩 콤보:</b> 거너나 샷건 보유자가 그랩과 레이저를 함께 가지고 있으면 그랩으로 끌어온 뒤 난사하는 선택에 가중치를 줍니다. 벽이나 다른 승무원에 부딪혀 추가 피해가 기대될 때도 우선합니다.</li>
 <li><b>추격과 코너 대기:</b> 당장 사선이 없으면 우선 표적과의 거리와 같은 행·열 근접도를 좁히는 칸에 점수를 주고, 위험하지 않은 인접 행·열(코너)에서 다음 턴 진입을 노립니다. 사거리가 짧을수록 이 효과를 크게 반영합니다.</li>
 <li><b>사이드 스텝 우선:</b> 거너·샷건 상대이거나 내 칸이 2명 이상의 사선에 노출되어 있고, 사이드 스텝으로 상대의 사선에서 벗어날 수 있으면 비상 부스터보다 먼저 씁니다.</li>
-<li><b>스파이 동적 전략:</b> 사령관의 내구도 상태에 따라 유동적으로 목표를 바꿉니다. 사령관이 강하면(내구도 4 이상이거나 스파이보다 2 이상 높아 최종 1:1 결전이 불리할 때) 보안팀(사령관·요원)을 깎아 세력을 약화시키고, 사령관이 약하거나 위태로우면(HP 2 이하) 사령관 사망(반란군 승리)을 막기 위해 사령관 공격을 전면 중단하고 반란군을 집중 제거합니다. 사령관·스파이 단독 대치 시에는 즉시 사령관에게 총력전을 펼치며, 6인에서는 스파이 동료끼리 협력합니다.</li>
-<li><b>정보 전파:</b> 보안요원이 센서실로 확인한 반란군·스파이를 공격하면, 그 대상이 사령관 쪽에서 보면 반란군 의심자로 크게 표시됩니다(일반 공격의 1.5배 가중).</li>
+<li><b>스파이 전략:</b> 6인전 초반에는 수적 우세한 반란군을 먼저 솎아내고, 5인전 및 6인전 중반 5인 이하 구도에서는 탈락자 공개 정체 소거법과 공개 교전 이력을 바탕으로 보안요원을 견제하며 무기고·엄폐막 파밍으로 결전 패를 비축한 뒤 최종 1:1 결전을 유도합니다. 동적 균형 AI 선택 시에는 전 인원에서 사령관 체력 상황에 따라 목표를 전환합니다.</li>
+<li><b>초반 탐색기 및 오인 사격 억제:</b> 5·6인전 1~2라운드에는 정체 단서가 없는 미교전 승무원에 대한 보안팀의 무분별한 선제 사격·구속·EMP 소모를 억제하고, 무기고·보안 센서실·중앙 코어·엄폐막 선점 및 손패 스캔 추론을 우선합니다.</li>
+<li><b>반란군 전술 페르소나 분화:</b> 반란군 중 일부는 초반 사령관 직격을 자제하고 장비·폭발물·결전 카드를 확보하거나 사령관 피해가 발생한 순간 기습에 가담하는 잠복 암살형으로 행동해 스파이·보안요원과의 심리전 혼선을 유발합니다.</li>
+<li><b>공개 교전 추론:</b> 사령관을 공격한 승무원은 반란군 의심도가 크게 상승하며, 반란군 의심자를 공격하면 보안팀 성향으로, 보안팀 성향 승무원을 공격하면 반란군 의심자로 공개 교전 가중치가 전파됩니다.</li>
 <li>반란군은 사령관을 최우선 표적으로 삼고, 사령관을 쏜 사람은 동료로 보고 공격을 피합니다. 수리 패치는 1장을 반응용으로 남겨 두고, 맞아서 죽기 직전에 씁니다.</li>
 </ul>
 <p class="note">이 AI는 휴리스틱이라 실제 사람의 심리전(블러핑, 연합, 협상)을 재현하지 못합니다. 승률의 절대값보다 설정을 바꿨을 때의 변화량을 비교하는 용도로 쓰세요. 위쪽 프리셋을 바꾸고 "현재 결과를 A로 저장"한 뒤 다시 실행하면 A/B 비교표가 나옵니다.</p>
@@ -3029,12 +3451,14 @@ function syncAllBoards() {
     el.innerHTML = '<span class="g ' + g[1] + '">' + g[0] + '</span><span class="v">' + vText + '</span>';
   }
   // 3. liveBoard
-  for (let r = 0; r < SIZE; r++) for (let c = 0; c < SIZE; c++) {
-    const el = $('live_' + r + '_' + c);
-    if (!el) continue;
-    const t = TERRAIN[r][c], g = glyphAt(r, c);
-    el.className = 'cell' + (t === 'WALL' ? ' wall' : '') + (t === 'CORE' ? ' core' : '');
-    if (!rep || !rep.active) {
+  if (rep && rep.m) {
+    repRender();
+  } else {
+    for (let r = 0; r < SIZE; r++) for (let c = 0; c < SIZE; c++) {
+      const el = $('live_' + r + '_' + c);
+      if (!el) continue;
+      const t = TERRAIN[r][c], g = glyphAt(r, c);
+      el.className = 'cell' + (t === 'WALL' ? ' wall' : '') + (t === 'CORE' ? ' core' : '');
       el.innerHTML = '<span class="g ' + g[1] + '">' + g[0] + '</span>';
     }
   }
@@ -3117,27 +3541,41 @@ function initMapEditor() {
     };
   });
 
-  // 마우스 이벤트
-  eb.addEventListener('mousedown', e => {
-    const cell = e.target.closest('.cell');
-    if (!cell) return;
-    e.preventDefault();
-    isEditMouseDown = true;
-    const r = +cell.dataset.r, c = +cell.dataset.c;
-    applyToolAt(r, c, e.button === 2);
-  });
-
-  eb.addEventListener('mouseenter', e => {
-    const cell = e.target.closest('.cell');
+  // 포인터 이벤트 (데스크톱 마우스 + 아이폰·아이패드 사파리 터치 드래그 통합 지원)
+  let lastPaintKey = '';
+  const paintFromEvent = (clientX, clientY, isRightClick) => {
+    const target = document.elementFromPoint(clientX, clientY);
+    const cell = target && target.closest ? target.closest('#editBoard .cell') : null;
     if (!cell) return;
     const r = +cell.dataset.r, c = +cell.dataset.c;
     $('editHoverCoords').textContent = '좌표: (' + (r + 1) + ', ' + (c + 1) + ') | 현재: ' + (glyphAt(r, c)[0] || '통로');
     if (isEditMouseDown) {
-      applyToolAt(r, c, false);
+      const k = r + ',' + c + ',' + (isRightClick ? 1 : 0);
+      if (k !== lastPaintKey) {
+        lastPaintKey = k;
+        applyToolAt(r, c, isRightClick);
+      }
     }
-  }, true);
+  };
 
-  window.addEventListener('mouseup', () => { isEditMouseDown = false; });
+  eb.addEventListener('pointerdown', e => {
+    const cell = e.target.closest('.cell');
+    if (!cell) return;
+    e.preventDefault();
+    isEditMouseDown = true;
+    lastPaintKey = '';
+    if (eb.setPointerCapture) { try { eb.setPointerCapture(e.pointerId); } catch (_) {} }
+    paintFromEvent(e.clientX, e.clientY, e.button === 2);
+  });
+
+  eb.addEventListener('pointermove', e => {
+    if (isEditMouseDown) e.preventDefault();
+    paintFromEvent(e.clientX, e.clientY, false);
+  });
+
+  const stopEditDrag = () => { isEditMouseDown = false; lastPaintKey = ''; };
+  window.addEventListener('pointerup', stopEditDrag);
+  window.addEventListener('pointercancel', stopEditDrag);
   eb.addEventListener('contextmenu', e => e.preventDefault());
 
   // 수축 가이드 토글
@@ -3153,6 +3591,26 @@ function initMapEditor() {
   bind('bPresetV8', () => loadPreset('v0.8'));
   bind('bPresetV7', () => loadPreset('v0.7'));
   bind('bPresetEmpty', () => loadPreset('empty'));
+
+  const copyTextSafe = (txt, okMsg, fallbackMsg) => {
+    const ta = $('txtMapIO');
+    ta.value = txt;
+    const execFallback = () => {
+      try {
+        ta.focus();
+        ta.setSelectionRange(0, txt.length);
+        const copied = document.execCommand && document.execCommand('copy');
+        alert(copied ? okMsg : fallbackMsg);
+      } catch (_) {
+        alert(fallbackMsg);
+      }
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(txt).then(() => alert(okMsg)).catch(execFallback);
+    } else {
+      execFallback();
+    }
+  };
 
   // 아스키 아트 복사
   $('bExportAscii').onclick = () => {
@@ -3173,27 +3631,13 @@ function initMapEditor() {
       }
       lines.push(rowNum + '   ' + rowCells.join('  '));
     }
-    const txt = lines.join('\n');
-    $('txtMapIO').value = txt;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(txt).then(() => alert('룰북용 아스키 아트가 클립보드에 복사되었습니다!'))
-        .catch(() => alert('아래 텍스트 창에 아스키 아트가 생성되었습니다.'));
-    } else {
-      alert('아래 텍스트 창에 아스키 아트가 생성되었습니다.');
-    }
+    copyTextSafe(lines.join('\n'), '룰북용 아스키 아트가 클립보드에 복사되었습니다!', '아래 텍스트 창에 아스키 아트가 생성되었습니다.');
   };
 
   // JSON 복사 & 불러오기
   $('bExportJSON').onclick = () => {
     const data = { version: '0.8', terrain: TERRAIN, spawns: SPAWNS };
-    const txt = JSON.stringify(data, null, 2);
-    $('txtMapIO').value = txt;
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(txt).then(() => alert('JSON 맵 코드가 클립보드에 복사되었습니다!'))
-        .catch(() => alert('아래 텍스트 창에 JSON 코드가 생성되었습니다.'));
-    } else {
-      alert('아래 텍스트 창에 JSON 코드가 생성되었습니다.');
-    }
+    copyTextSafe(JSON.stringify(data, null, 2), 'JSON 맵 코드가 클립보드에 복사되었습니다!', '아래 텍스트 창에 JSON 코드가 생성되었습니다.');
   };
 
   $('bImportJSON').onclick = () => {
@@ -3325,21 +3769,27 @@ const playState = {
   m: null,
   gen: 0,
   human: null,
+  inspectId: null,
+  inspectShowSecret: false,
   phase: 'IDLE',
   subMode: null,
   restricted: false,
   moveRoll: 0,
   moveRaw: 0,
   moveSteps: 0,
-  moveBoosted: false,
   reachMap: new Map(),
   targetCells: new Map(),
   selectedCards: [],
   hoverCell: null,
+  touchAim: null,
   fastForward: false,
   resolveStep: null,
   resolveDefense: null
 };
+
+function isCoarsePointer() {
+  return !!(window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches);
+}
 
 function initPlayUI() {
   const pb = $('playBoard');
@@ -3415,7 +3865,7 @@ function updatePlayHover(r, c) {
   if (m && h && h.alive) {
     if (playState.phase === 'MOVE' && !playState.subMode && playState.reachMap.has(r + ',' + c)) {
       const rgAtDest = m.rangeOf(h, r, c, false);
-      const shootable = m.players.filter(t => t.alive && t !== h && !(m.round === 1 && t.role === 'COMMANDER') && m.canShoot(r, c, t.r, t.c, rgAtDest, false, t));
+      const shootable = m.players.filter(t => t.alive && t !== h && !m.isCmdProtected(h, t) && m.canShoot(r, c, t.r, t.c, rgAtDest, false, t));
       shootable.forEach(t => {
         const el = $('playBoard_' + t.r + '_' + t.c);
         if (el) el.classList.add('aim-preview');
@@ -3424,7 +3874,8 @@ function updatePlayHover(r, c) {
     } else {
       const d = manh(h.r, h.c, r, c);
       const rg = m.rangeOf(h, h.r, h.c, false);
-      const canS = m.canShoot(h.r, h.c, r, c, rg, false);
+      const occ = m.playerAt(r, c, -1);
+      const canS = m.canShoot(h.r, h.c, r, c, rg, false, occ) && !(occ && m.isCmdProtected(h, occ));
       txt += ' · 내 위치에서 거리 ' + d + '칸' + (canS ? ' · 직선 사격 가능' : '');
     }
   }
@@ -3463,6 +3914,8 @@ function playStartNew() {
   playState.gen++;
   const gen = playState.gen;
   playState.fastForward = false;
+  playState.inspectId = null;
+  playState.inspectShowSecret = false;
   playState.resolveStep = null;
   playState.resolveDefense = null;
   playState.subMode = null;
@@ -3470,6 +3923,8 @@ function playStartNew() {
   playState.targetCells.clear();
   $('bPlayFast').classList.add('hidden');
   $('playPrompt').classList.add('hidden');
+  if ($('playInspectCard')) $('playInspectCard').classList.add('hidden');
+  if ($('playRadioBar')) $('playRadioBar').classList.add('hidden');
 
   let n = +$('pPlayers').value;
   const wantRole = $('pRole').value;
@@ -3489,6 +3944,15 @@ function playStartNew() {
   }
   const human = cand[Math.floor(Math.random() * cand.length)];
   m.players.forEach(p => { p.isHuman = (p.id === human.id); });
+  if (human.ambush) {
+    human.ambush = false;
+    human.persona = 'VANGUARD';
+    const aiRebels = m.players.filter(p => !p.isHuman && p.role === 'REBEL');
+    if (aiRebels.length) {
+      aiRebels[0].persona = 'AMBUSH';
+      aiRebels[0].ambush = true;
+    }
+  }
   playState.human = human;
 
   // 내 캐릭터 배정
@@ -3503,14 +3967,14 @@ function playStartNew() {
         other.maxHp = oBase + (other.role === 'COMMANDER' ? m.cmdBonus : 0) + (other.role === 'REBEL' ? m.rebelHp : 0) + (other.role === 'AGENT' ? m.agentHp : 0);
         other.hp = other.maxHp;
         while (other.hand.length < other.maxHp) m.drawCard(other);
-        while (other.hand.length > other.maxHp) m.deck.push(other.hand.pop());
+        while (other.hand.length > other.maxHp) { const rc = other.hand.pop(); m.cs[rc.name].drawn--; m.deck.push(rc); }
       }
       human.ch = targetCh;
       const hBase = human.ch.key === '거너' ? m.gunnerHp : human.ch.key === '스나이퍼' ? m.sniperHp : human.ch.key === '디펜더' ? m.defHp : human.ch.hp;
       human.maxHp = hBase + (human.role === 'COMMANDER' ? m.cmdBonus : 0) + (human.role === 'REBEL' ? m.rebelHp : 0) + (human.role === 'AGENT' ? m.agentHp : 0);
       human.hp = human.maxHp;
       while (human.hand.length < human.maxHp) m.drawCard(human);
-      while (human.hand.length > human.maxHp) m.deck.push(human.hand.pop());
+      while (human.hand.length > human.maxHp) { const rc = human.hand.pop(); m.cs[rc.name].drawn--; m.deck.push(rc); }
     }
   }
 
@@ -3600,78 +4064,8 @@ async function runAITurnInteractive(p, gen) {
   }
 
   if (!skipped) {
-    // 드로우 (오라클·테크니션·버서커 고유 능력 완전 반영)
-    const dn = m.drawRule === '1' ? 1 : m.drawRule === '2' ? 2 : (m.n <= 4 ? 2 : 1);
-    if (p.ch.key === '오라클' && dn === 2) {
-      const pool = [];
-      for (let i = 0; i < 3; i++) { const c = m.drawCard(null); if (c) pool.push(c); }
-      if (pool.length === 3) {
-        const hasEvade = p.hand.some(x => x.type === 'EVADE' || x.type === 'SIDESTEP' || x.type === 'BLINK');
-        const hasAtk = p.hand.some(x => x.type === 'ATTACK' || x.type === 'KNOCKBACK' || x.type === 'GRAB');
-        let minIdx = 0, minV = 1e9;
-        pool.forEach((c, idx) => {
-          let v = m.cardValue(p, c);
-          if (p.hp < p.maxHp && c.type === 'HEAL') v += 1.5;
-          if (!hasEvade && (c.type === 'EVADE' || c.type === 'SIDESTEP' || c.type === 'BLINK')) v += 1.0;
-          if (!hasAtk && c.type === 'ATTACK') v += 0.8;
-          const prevSame = pool.slice(0, idx).filter(x => x.name === c.name || (x.type === 'WEAPON' && c.type === 'WEAPON')).length;
-          if (prevSame > 0) v -= 1.8 * prevSame;
-          if (v < minV) { minV = v; minIdx = idx; }
-        });
-        const putBack = pool.splice(minIdx, 1)[0];
-        m.cs[putBack.name].drawn--;
-        p.hand.push(pool[0], pool[1]);
-        let nextP = null;
-        for (let step = 1; step < m.players.length; step++) {
-          const cand = m.players[(m.turn + step) % m.players.length];
-          if (cand.alive) { nextP = cand; break; }
-        }
-        if (p.hand.some(c => c.type === 'DRAW')) {
-          m.deck.unshift(putBack);
-        } else {
-          m.deck.push(putBack);
-          if (nextP) {
-            const isEv = putBack.type === 'EVADE' || putBack.type === 'SIDESTEP' || putBack.type === 'BLINK';
-            p.scan[nextP.id] = { round: m.round, evade: isEv, cards: [putBack.name] };
-          }
-        }
-        m.log('🔮 ' + m.pn(p) + ' 전술 연산 예측: 3장 확인 후 [' + pool[0].name + '], [' + pool[1].name + '] 선택 (1장 덱 반납)', 'util');
-      } else pool.forEach(c => p.hand.push(c));
-    } else {
-      for (let i = 0; i < dn; i++) {
-        if (i === 0 && p.ch.key === '테크니션' && m.discard.length > 0) {
-          const top = m.discard[m.discard.length - 1];
-          let tv = m.cardValue(p, top);
-          const sameCnt = p.hand.filter(x => x.type === top.type).length;
-          const unl = !!(p.weapon && p.weapon.burst);
-          const hasDef = m.countEvadeCards(p) >= 1;
-          const hasAtk = p.hand.some(x => x.type === 'ATTACK' || x.type === 'KNOCKBACK' || x.type === 'GRAB' || x.type === 'GRENADE');
-          if (top.type === 'ATTACK') {
-            if (!hasAtk) tv += 0.2;
-            else if (!unl) tv -= 1.2 * sameCnt;
-          } else if (top.type === 'EVADE' || top.type === 'SIDESTEP') {
-            if (!hasDef) tv += 0.45;
-            else if (sameCnt >= 1) tv -= 0.7 * sameCnt;
-          } else if (sameCnt >= 1 && (top.type === 'KNOCKBACK' || top.type === 'GRAB' || top.type === 'CUFF' || top.type === 'SWAP')) {
-            tv -= 0.9 * sameCnt;
-          }
-          if (top.type === 'MODULE' && !m.hasModule(p, top.name) && p.modules.length < 3) tv += 0.85;
-          if (top.type === 'DRAW') tv += 1.8;
-          if (top.type === 'HEAL' && p.hp < p.maxHp) tv += 0.5;
-          if (tv >= 2.95) {
-            const c = m.discard.pop();
-            p.hand.push(c);
-            m.log('🔧 ' + m.pn(p) + ' 부품 회수: 버린 더미에서 [' + c.name + '] 회수', 'util');
-            continue;
-          }
-        }
-        m.drawCard(p);
-      }
-      if (p.ch.key === '버서커' && p.hp <= 2) {
-        m.drawCard(p);
-        m.log('🔥 ' + m.pn(p) + ' 광전사 각성: 추가 드로우 + 사거리 +1 + 레이저 +1회', 'util');
-      }
-    }
+    // 드로우 (Match.drawPhase 공통 로직 사용)
+    m.drawPhase(p);
 
     // 이동 전 행동
     m.useDrawCards(p); m.equipBest(p); m.healIfNeeded(p); m.tryCypherScan(p);
@@ -3732,12 +4126,12 @@ async function trySwapInteractive(p, gen) {
       if (t.r === CENTER && t.c === CENTER && m.coreOn()) score += 2.5;
       if (m.hasMineAt(p.r, p.c)) score += 3.0;
       let pExposed = 0;
-      for (const o of m.players) if (o.alive && o !== p && m.canHostile(o, p) && m.canThreaten(o, p.r, p.c)) pExposed++;
+      for (const o of m.players) if (o.alive && o !== p && m.canHostile(o, p) && m.canThreaten(o, p.r, p.c, p)) pExposed++;
       if (pExposed >= 2) score += 2.2;
     } else {
       if (t.role === 'COMMANDER' && t.hp <= 2) {
         let tExposed = 0;
-        for (const o of m.players) if (o.alive && o !== t && m.canHostile(o, t) && m.canThreaten(o, t.r, t.c)) tExposed++;
+        for (const o of m.players) if (o.alive && o !== t && m.canHostile(o, t) && m.canThreaten(o, t.r, t.c, t)) tExposed++;
         if (tExposed >= 2) score += 4.0;
       }
     }
@@ -3772,13 +4166,13 @@ async function aiVolleyInteractive(p, pre, gen) {
     const gi = p.hand.findIndex(c => c.type === 'GRAB');
     if (li < 0 && ki < 0 && gi < 0) break;
 
-    const lasersHand = p.hand.filter(c => c.type === 'ATTACK').length + (p.ch.key === '스위처' && p.switcherRound !== m.round && p.hand.some(c => c.type === 'EVADE') ? 1 : 0);
+    const lasersHand = m.countHand(p, 'ATTACK') + (p.ch.key === '스위처' && p.switcherRound !== m.round && m.hasHand(p, 'EVADE') ? 1 : 0);
     const rg = m.rangeOf(p, p.r, p.c, false);
     let best = null;
 
     for (const t of m.players) {
       if (!t.alive || t === p || declined.has(t.id) || !m.canHostile(p, t)) continue;
-      if (m.round === 1 && t.role === 'COMMANDER') continue;
+      if (m.isCmdProtected(p, t)) continue;
       const w = m.adjWeight(p, t);
       if (w <= 0.01) continue;
       const combo = (gunner || burstWeapon || isShotgun) && lasersHand >= 1 && gi >= 0;
@@ -3786,14 +4180,14 @@ async function aiVolleyInteractive(p, pre, gen) {
       const dist = manh(p.r, p.c, t.r, t.c);
       const berserkRage = p.ch.key === '버서커' && p.hp <= 2 && m.tc.lasers < 2;
       const unl = burstWeapon || berserkRage || (gunner && (m.gunnerMode === 'old' || ((m.gunnerMode === 'free' || m.gunnerMode === 'v8') && dist === 1) || (m.gunnerMode === 'two' && m.tc.lasers < 2)));
-      const hasDef = m.countEvadeCards(p) >= 1 || p.hand.some(c => c.type === 'HEAL' || c.type === 'COUNTER');
+      const hasDef = m.countEvadeCards(p) >= 1 || m.hasHand(p, 'HEAL') || m.hasHand(p, 'COUNTER');
       const isFocus = m.tc.focusId === t.id;
       const focusAlive = m.tc.focusId ? m.players.some(x => x.id === m.tc.focusId && x.alive) : false;
       const smartBurst = !gunner || m.tc.lasers === 0 || isFocus || (!focusAlive && (w >= 1.35 || t.hp <= 2 || p.hand.length > p.hp || (w >= 1.0 && hasDef))) || (w >= 1.6 || t.hp === 1);
       const laserOk = li >= 0 && (m.tc.lasers === 0 || (unl && smartBurst));
       const knockOk = ki >= 0 && m.tc.knocks === 0;
       const grabOk = gi >= 0 && m.tc.grabs === 0;
-      const normal = m.canShoot(p.r, p.c, t.r, t.c, rg, false);
+      const normal = m.canShoot(p.r, p.c, t.r, t.c, rg, false, t);
       const cands = [];
       const focusMul = isFocus ? 1.3 : 1.0;
       if (normal && laserOk) cands.push({ kind: 'L', m: (isShotgun ? 1.7 : 1.0) * focusMul, sw: w });
@@ -3811,8 +4205,8 @@ async function aiVolleyInteractive(p, pre, gen) {
 
     let card;
     if (best.kind === 'L') {
-      card = m.useCard(p, li);
-      if (p.ch.key === '스위처' && card.type === 'EVADE') p.switcherRound = m.round;
+      const isConv = p.hand[li].type === 'EVADE';
+      card = m.useCard(p, li, isConv);
       m.tc.lasers++;
     } else if (best.kind === 'K') {
       card = m.useCard(p, ki);
@@ -3849,22 +4243,33 @@ async function aiGrenadeInteractive(p, pre, gen) {
   if (i < 0) return;
 
   const maxDist = p.ch.key === '트래퍼' ? 4 : 3;
+  let anyNear = false;
+  for (const t of m.players) {
+    if (t.alive && t !== p && !m.isCmdProtected(p, t) && m.canHostile(p, t) && manh(p.r, p.c, t.r, t.c) <= maxDist + 1) {
+      anyNear = true; break;
+    }
+  }
+  if (!anyNear) return;
+
+  const myRange = m.rangeOf(p, p.r, p.c, false);
   let bestR = -1, bestC = -1, bestScore = -999;
   let bestMaxW = 0, bestHasKill = false, bestMulti = 0;
-  for (let tr = 0; tr < SIZE; tr++) {
-    for (let tc = 0; tc < SIZE; tc++) {
+  const rMin = Math.max(0, p.r - maxDist), rMax = Math.min(SIZE - 1, p.r + maxDist);
+  for (let tr = rMin; tr <= rMax; tr++) {
+    const rem = maxDist - Math.abs(p.r - tr);
+    const cMin = Math.max(0, p.c - rem), cMax = Math.min(SIZE - 1, p.c + rem);
+    for (let tc = cMin; tc <= cMax; tc++) {
+      if (tr === p.r && tc === p.c) continue;
       if (m.isWall(tr, tc)) continue;
-      const dist = manh(p.r, p.c, tr, tc);
-      if (dist === 0 || dist > maxDist) continue;
-      const blastTiles = [[tr, tc], [tr - 1, tc], [tr + 1, tc], [tr, tc - 1], [tr, tc + 1]];
-      let score = 0, selfInBlast = false, hitEnemies = 0, maxW = 0, hasKill = false;
-      for (const [br, bc] of blastTiles) {
+      if (manh(p.r, p.c, tr, tc) <= 1) continue;
+      let score = 0, hitEnemies = 0, maxW = 0, hasKill = false;
+      for (let b = 0; b < 5; b++) {
+        const br = b === 0 ? tr : b === 1 ? tr - 1 : b === 2 ? tr + 1 : tr;
+        const bc = b === 3 ? tc - 1 : b === 4 ? tc + 1 : tc;
         if (!m.inb(br, bc) || m.isWall(br, bc)) continue;
-        if (p.r === br && p.c === bc) { selfInBlast = true; break; }
         const occ = m.playerAt(br, bc, -1);
         if (occ && occ.alive) {
-          if (occ === p) { selfInBlast = true; break; }
-          if (m.round === 1 && occ.role === 'COMMANDER') { score -= 6.0; continue; }
+          if (m.isCmdProtected(p, occ)) { score -= 6.0; continue; }
           if (m.canHostile(p, occ)) {
             const w = m.adjWeight(p, occ);
             if (w < 0.35) { score -= 2.5; continue; }
@@ -3873,7 +4278,7 @@ async function aiGrenadeInteractive(p, pre, gen) {
             if (occ.hp === 1) hasKill = true;
             let val = 2.0 * w;
             if (occ.hp === 1) val += 2.5;
-            if (m.lineWalls(p.r, p.c, occ.r, occ.c) !== 0 || !m.canShoot(p.r, p.c, occ.r, occ.c, m.rangeOf(p, p.r, p.c, false), false)) val += 1.4;
+            if (m.lineWalls(p.r, p.c, occ.r, occ.c) !== 0 || !m.canShoot(p.r, p.c, occ.r, occ.c, myRange, false, occ)) val += 1.4;
             if (TERRAIN[occ.r][occ.c] === 'COVER') val += 0.9;
             if (m.passiveRate(occ, manh(p.r, p.c, occ.r, occ.c)) > 0) val += 0.8;
             score += val;
@@ -3882,7 +4287,6 @@ async function aiGrenadeInteractive(p, pre, gen) {
           }
         }
       }
-      if (selfInBlast) continue;
       if (hitEnemies >= 2) score += 2.4;
       if (hitEnemies > 0 && score > bestScore) {
         bestScore = score; bestR = tr; bestC = tc; bestMaxW = maxW; bestHasKill = hasKill; bestMulti = hitEnemies;
@@ -3894,7 +4298,7 @@ async function aiGrenadeInteractive(p, pre, gen) {
     if (pre && !(bestHasKill || bestMulti >= 2 || p.hand.length > p.hp + 1)) return;
     const ec = p.hand[extraIdx];
     const isCoreDef = ec && (ec.type === 'EVADE' || ec.type === 'SIDESTEP' || ec.type === 'BLINK' || ec.type === 'COUNTER' || ec.type === 'HEAL');
-    const defCnt = m.countEvadeCards(p) + p.hand.filter(c => c.type === 'HEAL' || c.type === 'COUNTER').length;
+    const defCnt = m.countEvadeCards(p) + m.countHand(p, 'HEAL') + m.countHand(p, 'COUNTER');
     if (isCoreDef && defCnt <= (p.hp <= 2 ? 2 : 1) && p.hand.length <= p.hp) return;
     const remainDef = defCnt - (isCoreDef ? 1 : 0);
     if (remainDef === 0 && p.hand.length <= p.hp && !bestHasKill && bestMulti < 2 && bestMaxW < 2.2) return;
@@ -3924,6 +4328,7 @@ async function aiGrenadeInteractive(p, pre, gen) {
   }
   for (const tgt of hitList) {
     if (m.over || !tgt.alive || gen !== playState.gen) continue;
+    if (m.isCmdProtected(p, tgt)) continue;
     m.noteAttack(p, tgt);
     m.log('💥 ' + m.pn(tgt) + ' 수류탄 폭발 피격!', 'combat');
     playRender();
@@ -4179,7 +4584,7 @@ async function askHumanDefense(tgt, att, dist, pierce, dmg, atkName, gen, allowC
     const cnt = choice.count || 1;
     for (let k = 0; k < cnt; k++) {
       const idx = m.findEvadeIdx(tgt);
-      if (idx >= 0) m.useCard(tgt, idx);
+      if (idx >= 0) m.useCard(tgt, idx, tgt.hand[idx].type === 'ATTACK');
     }
     const left = Math.max(0, dmg - cnt);
     m.log('🛡️ ' + m.pn(tgt) + ' [비상 부스터] ' + cnt + '장 분사! (피해 ' + dmg + ' → ' + left + ')', 'evade');
@@ -4195,7 +4600,6 @@ async function runHumanTurnInteractive(p, gen) {
   m.turnCount++;
   m.tc = { lasers: 0, knocks: 0, grabs: 0, medicHeal: false, cypherScan: false, trapperMine: false, bomberGrenade: false, noted: new Set(), focusId: null };
   playState.restricted = false;
-  playState.moveBoosted = false;
   playState.subMode = null;
   playState.reachMap.clear();
   playState.targetCells.clear();
@@ -4210,7 +4614,7 @@ async function runHumanTurnInteractive(p, gen) {
     pr.className = 'prompt-box danger';
     pr.classList.remove('hidden');
     pr.innerHTML = '<div class="pr-title">🔒 슈트 락다운 구속 상태</div>' +
-      '<div class="pr-sub">해제 주사위(D6)를 굴려 5~6이 나오면 정상 행동하고, 1~4가 나오면 이번 턴이 소실됩니다.</div>' +
+      '<div class="pr-sub">해제 주사위를 굴려 5~6이 나오면 정상 행동하고, 1~4가 나오면 이번 턴이 소실됩니다.</div>' +
       '<div class="btns"><button class="btn pri" id="bRollCuff">🎲 해제 주사위 굴리기</button></div>';
     await new Promise(r => { $('bRollCuff').onclick = r; });
     pr.classList.add('hidden');
@@ -4266,7 +4670,8 @@ async function runHumanTurnInteractive(p, gen) {
   while (gen === playState.gen && !m.over && p.alive && playState.phase === 'PRE_ACTION') {
     playRender();
     const act = await waitUserAction(gen);
-    if (gen !== playState.gen || m.over || !p.alive) return;
+    if (gen !== playState.gen) return;
+    if (m.over || !p.alive) break;
     if (act === 'GO_MOVE') {
       playState.phase = 'MOVE';
       break;
@@ -4280,7 +4685,7 @@ async function runHumanTurnInteractive(p, gen) {
   // 4. 이동 단계 (MOVE)
   if (gen === playState.gen && !m.over && p.alive && playState.phase === 'MOVE' && !playState.restricted) {
     await runHumanMovePhase(p, gen);
-    if (gen !== playState.gen || m.over || !p.alive) return;
+    if (gen !== playState.gen) return;
   }
 
   // 5. 이동 후 행동 단계 (POST_ACTION)
@@ -4288,7 +4693,8 @@ async function runHumanTurnInteractive(p, gen) {
     while (gen === playState.gen && !m.over && p.alive && playState.phase === 'POST_ACTION') {
       playRender();
       const act = await waitUserAction(gen);
-      if (gen !== playState.gen || m.over || !p.alive) return;
+      if (gen !== playState.gen) return;
+      if (m.over || !p.alive) break;
       if (act === 'END_TURN') {
         playState.phase = 'CLEANUP';
         break;
@@ -4296,12 +4702,15 @@ async function runHumanTurnInteractive(p, gen) {
     }
   }
 
-  // 6. 정리 단계 (CLEANUP: 초과 손패 버리기)
-  if (gen === playState.gen && !m.over && p.alive) {
+  // 6. 정리 단계 (CLEANUP: 초과 손패 버리기) 및 턴 종료 정산
+  if (gen !== playState.gen) return;
+  playState.subMode = null;
+  playState.reachMap.clear();
+  playState.targetCells.clear();
+  clearBlastPreview();
+
+  if (!m.over && p.alive) {
     playState.phase = 'CLEANUP';
-    playState.subMode = null;
-    playState.reachMap.clear();
-    playState.targetCells.clear();
     while (gen === playState.gen && !m.over && p.alive && p.hand.length > p.hp) {
       if (playState.fastForward) {
         m.cleanup(p);
@@ -4309,12 +4718,13 @@ async function runHumanTurnInteractive(p, gen) {
       }
       playRender();
       await waitUserAction(gen);
+      if (gen !== playState.gen) return;
     }
-    $('playPrompt').classList.add('hidden');
-    if (!m.over && p.alive) {
-      m.heat.visit[m.idx(p.r, p.c)]++;
-      m.advance();
-    }
+  }
+  $('playPrompt').classList.add('hidden');
+  if (!m.over) {
+    if (p.alive) m.heat.visit[m.idx(p.r, p.c)]++;
+    m.advance();
   }
 }
 
@@ -4328,14 +4738,13 @@ async function promptOraclePick(p, pool, gen) {
   await new Promise(resolve => {
     const renderOracle = () => {
       pr.innerHTML = '<div class="pr-title">🔮 오라클 전술 연산 예측: 덱에 되돌려놓을 카드 1장을 선택하세요</div>' +
-        '<div class="pr-sub">선택하지 않은 나머지 2장은 내 손패로 들어옵니다.</div>' +
+        '<div class="pr-sub">선택하지 않은 나머지 2장은 내 손패로 들어오며, 선택한 1장은 덱 맨 위에 반납됩니다.</div>' +
         '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">' +
         pool.map((c, idx) => '<button class="btn ' + (idx === backIdx ? 'pri' : '') + '" data-oidx="' + idx + '">' +
           (idx === backIdx ? '↩ 반납: ' : '✔ 획득: ') + c.name + '</button>').join('') +
         '</div>' +
         '<div class="btns">' +
           '<button class="btn pri" id="bOraTop">선택한 1장을 덱 맨 위에 반납</button>' +
-          '<button class="btn" id="bOraBot">선택한 1장을 덱 맨 아래에 반납</button>' +
         '</div>';
       pr.querySelectorAll('[data-oidx]').forEach(b => {
         b.onclick = () => { backIdx = +b.dataset.oidx; renderOracle(); };
@@ -4346,14 +4755,6 @@ async function promptOraclePick(p, pool, gen) {
         p.hand.push(pool[0], pool[1]);
         m.deck.push(putBack);
         m.log('🔮 ' + m.pn(p) + ' 전술 연산 예측: [' + pool[0].name + '], [' + pool[1].name + '] 획득 ([' + putBack.name + '] 덱 맨 위 반납)', 'util');
-        resolve();
-      };
-      $('bOraBot').onclick = () => {
-        const putBack = pool.splice(backIdx, 1)[0];
-        m.cs[putBack.name].drawn--;
-        p.hand.push(pool[0], pool[1]);
-        m.deck.unshift(putBack);
-        m.log('🔮 ' + m.pn(p) + ' 전술 연산 예측: [' + pool[0].name + '], [' + pool[1].name + '] 획득 (1장 덱 맨 아래 반납)', 'util');
         resolve();
       };
     };
@@ -4368,15 +4769,17 @@ async function promptTechnicianDraw(p, dn, gen) {
   const pr = $('playPrompt');
   pr.className = 'prompt-box';
   pr.classList.remove('hidden');
+  const takeLabel = dn > 1 ? '🔧 [' + top.name + '] 회수 + 덱 ' + (dn - 1) + '장 드로우' : '🔧 [' + top.name + '] 회수';
   pr.innerHTML = '<div class="pr-title">🔧 테크니션 부품 회수</div>' +
     '<div class="pr-sub">첫 번째 드로우 대신 버린 카드 더미 맨 위의 <b>[' + top.name + ']</b> 카드를 회수할 수 있습니다.</div>' +
     '<div class="btns">' +
-      '<button class="btn pri" id="bTechTake">🔧 [' + top.name + '] 회수 + 덱 1장 드로우</button>' +
-      '<button class="btn" id="bTechNorm">🃏 덱에서 일반 2장 드로우</button>' +
+      '<button class="btn pri" id="bTechTake">' + takeLabel + '</button>' +
+      '<button class="btn" id="bTechNorm">🃏 덱에서 일반 ' + dn + '장 드로우</button>' +
     '</div>';
   await new Promise(resolve => {
     $('bTechTake').onclick = () => {
       const c = m.discard.pop();
+      m.cs[c.name].drawn++;
       p.hand.push(c);
       m.log('🔧 ' + m.pn(p) + ' 부품 회수: 버린 더미에서 [' + c.name + '] 회수', 'util');
       for (let i = 1; i < dn; i++) m.drawCard(p);
@@ -4395,19 +4798,15 @@ async function runHumanMovePhase(p, gen) {
   let r1 = m.d6(), r2 = p.ch.key === '러너' ? m.d6() : 0;
   let raw = p.ch.key === '러너' ? Math.max(r1, r2) : r1;
   playState.moveRaw = raw;
-  playState.moveBoosted = false;
 
-  const calcReach = () => {
-    const base = playState.moveBoosted ? 3 : (p.ch.key === '뱅가드' ? Math.max(raw, 3) : raw);
-    const pen = p.weapon ? p.weapon.move : 0;
-    const th = m.hasModule(p, '보조 추진기') ? 1 : 0;
-    playState.moveSteps = Math.max(1, base - pen + th);
-    playState.reachMap.clear();
-    for (const [r, c] of m.reachable(p, playState.moveSteps)) {
-      playState.reachMap.set(r + ',' + c, { r, c, mode: 'MOVE' });
-    }
-  };
-  calcReach();
+  const base = p.ch.key === '뱅가드' ? Math.max(raw, 3) : raw;
+  const pen = p.weapon ? p.weapon.move : 0;
+  const th = m.hasModule(p, '보조 추진기') ? 1 : 0;
+  playState.moveSteps = Math.max(1, base - pen + th);
+  playState.reachMap.clear();
+  for (const [r, c] of m.reachable(p, playState.moveSteps)) {
+    playState.reachMap.set(r + ',' + c, { r, c, mode: 'MOVE' });
+  }
   m.log('🎲 이동 주사위 굴림: ' + (p.ch.key === '러너' ? r1 + ', ' + r2 + ' → 높은 값 ' + raw : raw) + ' (최대 ' + playState.moveSteps + '칸 이동 가능)', 'move');
 
   while (gen === playState.gen && !m.over && p.alive && playState.phase === 'MOVE') {
@@ -4424,9 +4823,6 @@ async function runHumanMovePhase(p, gen) {
       }
       playState.phase = 'POST_ACTION';
       break;
-    }
-    if (act === 'RECALC_MOVE') {
-      calcReach();
     }
   }
 }
@@ -4505,7 +4901,7 @@ async function promptHumanSensor(p, isRemote, gen) {
   pr.className = 'prompt-box';
   pr.classList.remove('hidden');
   pr.innerHTML = '<div class="pr-title">📡 ' + (isRemote ? '원격 센서 접속' : '보안 센서실 가동') + ': 손패를 스캔할 대상을 선택하세요</div>' +
-    '<div class="pr-sub">주사위(D6) 결과에 따라 상대의 손패 1~3장을 정밀 스캔합니다.</div>' +
+    '<div class="pr-sub">주사위 결과에 따라 상대의 손패 1~3장을 정밀 스캔합니다.</div>' +
     '<div class="btns">' +
       cands.map(t => '<button class="btn pri" data-sidx="' + t.id + '">📡 ' + pLabel(t) + ' 스캔 · 손패 ' + t.hand.length + '장</button>').join('') +
     '</div>';
@@ -4518,6 +4914,7 @@ async function promptHumanSensor(p, isRemote, gen) {
         const d = m.d6();
         const wantCount = d <= 2 ? 1 : d <= 4 ? 2 : 3;
         const tag = isRemote ? '원격 센서 접속' : '센서실 정찰';
+        if (p.pub) p.pub.scan++;
         if (!best.hand.length) {
           p.scan[best.id] = { round: m.round, evade: false, cards: [] };
           m.log('📡 ' + m.pn(p) + ' ' + tag + ' (D6 ' + d + '): ' + m.pn(best) + '의 손패가 0장임을 확인!', 'util');
@@ -4544,21 +4941,33 @@ async function promptHumanSensor(p, isRemote, gen) {
 /* ---------- 보드 셀 클릭 & 손패 카드 클릭 핸들러 ---------- */
 async function onPlayCellClick(r, c) {
   const m = playState.m, h = playState.human;
-  if (!m || m.over || !h) return;
+  if (!m || !h) return;
+  const occ = m.playerAt(r, c, null);
+  if (m.over) {
+    if (occ) selectInspectPlayer(occ.id);
+    updatePlayHover(r, c);
+    return;
+  }
 
   // 1. 방어 도중 사이드 스텝 / 양자 도약 위치 클릭
   if (playState.phase === 'DEFEND_PROMPT' && playState.resolveDefense) {
     const info = playState.reachMap.get(r + ',' + c);
     if (info) {
       playState.resolveDefense({ action: info.mode === 'PICK_SIDE' ? 'side' : 'blink', r, c });
+    } else {
+      if (occ) selectInspectPlayer(occ.id);
+      updatePlayHover(r, c);
     }
     return;
   }
 
-  // 2. 이동 단계에서 초록색 이동 가능 칸 클릭
+  // 2. 이동 단계에서 초록색 이동 가능 칸 클릭 (그 외 승무원 클릭 시 상세 정보 표시)
   if (playState.phase === 'MOVE' && !playState.subMode) {
     if (playState.reachMap.has(r + ',' + c)) {
       triggerStep({ type: 'MOVED', r, c });
+    } else {
+      if (occ) selectInspectPlayer(occ.id);
+      updatePlayHover(r, c);
     }
     return;
   }
@@ -4566,8 +4975,22 @@ async function onPlayCellClick(r, c) {
   // 3. 카드/스킬 타겟팅 모드에서 대상 칸 클릭
   if (playState.subMode && playState.targetCells.has(r + ',' + c)) {
     const tInfo = playState.targetCells.get(r + ',' + c);
+    if ((playState.subMode.type === 'GRENADE' || playState.subMode.type === 'BOMBER_THROW') && isCoarsePointer() && playState.touchAim !== r + ',' + c) {
+      playState.touchAim = r + ',' + c;
+      showTargetPrompt('🧨 목표 확인: ' + (r + 1) + '행 ' + (c + 1) + '열 십자 5칸 · 다시 탭하거나 확정 버튼을 누르세요', [
+        { label: '🧨 이 위치에 투척 확정', info: tInfo }
+      ]);
+      updatePlayHover(r, c);
+      return;
+    }
+    playState.touchAim = null;
     await executeSubModeTarget(tInfo);
+    return;
   }
+
+  // 4. 승무원 토큰 클릭 시 역할·장비 상세 조회 + 좌표·사거리 정보 표시 (아이폰/터치 대응)
+  if (occ) selectInspectPlayer(occ.id);
+  updatePlayHover(r, c);
 }
 
 async function onHandCardClick(idx) {
@@ -4584,17 +5007,6 @@ async function onHandCardClick(idx) {
       playRender();
       if (p.hand.length <= p.hp) triggerStep('CLEANUP_DONE');
     }
-    return;
-  }
-
-  // 추진 부스터 카드 버리기 서브모드
-  if (playState.phase === 'MOVE' && playState.subMode && playState.subMode.type === 'BOOST_DISCARD') {
-    const discarded = m.discardCard(p, idx, 'cost');
-    playState.moveBoosted = true;
-    playState.subMode = null;
-    $('playPrompt').classList.add('hidden');
-    m.log('🚀 ' + m.pn(p) + ' 추진 부스터 가동: [' + discarded.name + '] 버리고 기본 이동력 3칸 확보!', 'move');
-    triggerStep('RECALC_MOVE');
     return;
   }
 
@@ -4720,7 +5132,7 @@ async function onHandCardClick(idx) {
     const berserkRage = p.ch.key === '버서커' && p.hp <= 2 && m.tc.lasers < 2;
     const targets = m.players.filter(t => {
       if (!t.alive || t === p) return false;
-      if (m.round === 1 && t.role === 'COMMANDER') return false;
+      if (m.isCmdProtected(p, t)) return false;
       const d = manh(p.r, p.c, t.r, t.c);
       const gunnerUnl = p.ch.key === '거너' && (m.gunnerMode === 'old' || ((m.gunnerMode === 'free' || m.gunnerMode === 'v8') && d === 1) || (m.gunnerMode === 'two' && m.tc.lasers < 2));
       const canMore = m.tc.lasers === 0 || burstWeapon || berserkRage || gunnerUnl;
@@ -4728,7 +5140,7 @@ async function onHandCardClick(idx) {
       return m.canShoot(p.r, p.c, t.r, t.c, rg, false, t);
     });
     if (!targets.length) {
-      showPlayNotice(m.tc.lasers >= 1 ? '이번 턴 레이저 샷 사용 횟수를 모두 소모했거나 인접 대상이 없습니다.' : '사거리(' + rg + '칸) 및 일직선 사선 내에 조준 가능한 대상이 없습니다.' + (m.round === 1 ? ' (1라운드 사령관 공격 보호 적용 중)' : ''));
+      showPlayNotice(m.tc.lasers >= 1 ? '이번 턴 레이저 샷 사용 횟수를 모두 소모했거나 인접 대상이 없습니다.' : '사거리 ' + rg + '칸 및 일직선 사선 내에 조준 가능한 대상이 없습니다.' + (m.isCmdProtected(p, m.players[0]) ? ' 제1라운드 사령관 보호가 적용 중입니다.' : ''));
       return;
     }
     playState.subMode = { type: 'LASER', cardIdx: idx };
@@ -4745,8 +5157,8 @@ async function onHandCardClick(idx) {
     if (playState.restricted) { showPlayNotice('슈트 락다운 제한으로 공격이 불가능합니다.'); return; }
     if (m.tc.knocks >= 1) { showPlayNotice('넉백 블래스터는 턴당 1장만 사용할 수 있습니다.'); return; }
     const rg = m.rangeOf(p, p.r, p.c, false);
-    const targets = m.players.filter(t => t.alive && t !== p && !(m.round === 1 && t.role === 'COMMANDER') && m.canShoot(p.r, p.c, t.r, t.c, rg, false, t));
-    if (!targets.length) { showPlayNotice('사거리(' + rg + '칸) 및 직선 사선 내에 조준 가능한 대상이 없습니다.'); return; }
+    const targets = m.players.filter(t => t.alive && t !== p && !m.isCmdProtected(p, t) && m.canShoot(p.r, p.c, t.r, t.c, rg, false, t));
+    if (!targets.length) { showPlayNotice('사거리 ' + rg + '칸 및 직선 사선 내에 조준 가능한 대상이 없습니다.'); return; }
     playState.subMode = { type: 'KNOCKBACK', cardIdx: idx };
     targets.forEach(t => playState.targetCells.set(t.r + ',' + t.c, { type: 'KNOCKBACK', cardIdx: idx, target: t }));
     showTargetPrompt('💥 넉백 블래스터 사격 대상을 선택하세요', targets.map(t => ({
@@ -4760,8 +5172,8 @@ async function onHandCardClick(idx) {
   if (c.type === 'GRAB') {
     if (playState.restricted) { showPlayNotice('슈트 락다운 제한으로 공격이 불가능합니다.'); return; }
     if (m.tc.grabs >= 1) { showPlayNotice('자력 그랩은 턴당 1장만 사용할 수 있습니다.'); return; }
-    const targets = m.players.filter(t => t.alive && t !== p && !(m.round === 1 && t.role === 'COMMANDER') && m.canGrab(p, t));
-    if (!targets.length) { showPlayNotice('직선 거리 2~4칸(격벽 최대 1개 통과) 내에 견인 가능한 대상이 없습니다.'); return; }
+    const targets = m.players.filter(t => t.alive && t !== p && !m.isCmdProtected(p, t) && m.canGrab(p, t));
+    if (!targets.length) { showPlayNotice('직선 거리 2~4칸 내에 견인 가능한 대상이 없습니다.'); return; }
     playState.subMode = { type: 'GRAB', cardIdx: idx };
     targets.forEach(t => playState.targetCells.set(t.r + ',' + t.c, { type: 'GRAB', cardIdx: idx, target: t }));
     showTargetPrompt('🧲 자력 그랩 견인 대상을 선택하세요', targets.map(t => ({
@@ -4834,7 +5246,7 @@ async function onHandCardClick(idx) {
   // 12) 슈트 락다운
   if (c.type === 'CUFF') {
     const targets = m.players.filter(t => t.alive && t !== p && t.role !== 'COMMANDER' && !t.cuffed);
-    if (!targets.length) { showPlayNotice('구속 가능한 대상이 없습니다 (사령관 및 이미 구속된 대상 제외).'); return; }
+    if (!targets.length) { showPlayNotice('구속 가능한 대상이 없습니다. 사령관 및 이미 구속된 대상은 제외됩니다.'); return; }
     playState.subMode = { type: 'CUFF', cardIdx: idx };
     targets.forEach(t => playState.targetCells.set(t.r + ',' + t.c, { type: 'CUFF', cardIdx: idx, target: t }));
     showTargetPrompt('🔒 슈트 락다운으로 구속할 대상을 선택하세요', targets.map(t => ({
@@ -4857,7 +5269,7 @@ async function onHandCardClick(idx) {
       const eqLock = t.ch.key === '테크니션';
       return (!eqLock && (t.weapon || (t.modules && t.modules.length > 0))) || t.hand.length > 0;
     });
-    if (!targets.length) { showPlayNotice('사거리(' + maxDist + '칸) 내에 해킹 가능한 대상이 없습니다.'); return; }
+    if (!targets.length) { showPlayNotice('사거리 ' + maxDist + '칸 내에 해킹 가능한 대상이 없습니다.'); return; }
     playState.subMode = { type: 'HACK', cardIdx: idx };
     const opts = [];
     targets.forEach(t => {
@@ -4918,7 +5330,11 @@ async function executeSubModeTarget(info) {
     m.useCard(p, info.cardIdx);
     m.heal.patch++;
     t.hp = Math.min(t.maxHp, t.hp + 1);
-    if (t.role === 'COMMANDER' && p !== t) m.ev.sec[p.id] = Math.min(6, m.ev.sec[p.id] + 2);
+    if (t.role === 'COMMANDER' && p !== t) {
+      m.ev.sec[p.id] = Math.min(6, m.ev.sec[p.id] + 2);
+      m._evSeq = (m._evSeq || 0) + 1;
+      if (p.pub) p.pub.helpedCmd++;
+    }
     m.log('💉 ' + m.pn(p) + ' [수리 패치] 투여 → ' + m.pn(t) + ' 내구도 +1 (HP ' + t.hp + '/' + t.maxHp + ')', 'util');
     playRender();
     return;
@@ -4926,11 +5342,11 @@ async function executeSubModeTarget(info) {
 
   if (info.type === 'LASER') {
     const t = info.target;
-    const card = m.useCard(p, info.cardIdx);
-    if (p.ch.key === '스위처' && card.type === 'EVADE') p.switcherRound = m.round;
+    const isConv = p.hand[info.cardIdx].type === 'EVADE';
+    const card = m.useCard(p, info.cardIdx, isConv);
     m.tc.lasers++;
     await resolveAttackInteractive(p, t, card, false, manh(p.r, p.c, t.r, t.c), gen);
-    if (m.over) triggerStep('END_TURN');
+    if (m.over || !p.alive) triggerStep('END_TURN');
     return;
   }
 
@@ -4939,7 +5355,7 @@ async function executeSubModeTarget(info) {
     const card = m.useCard(p, info.cardIdx);
     m.tc.knocks++;
     await resolveAttackInteractive(p, t, card, false, manh(p.r, p.c, t.r, t.c), gen);
-    if (m.over) triggerStep('END_TURN');
+    if (m.over || !p.alive) triggerStep('END_TURN');
     return;
   }
 
@@ -4948,7 +5364,7 @@ async function executeSubModeTarget(info) {
     const card = m.useCard(p, info.cardIdx);
     m.tc.grabs++;
     await resolveGrabInteractive(p, t, card, manh(p.r, p.c, t.r, t.c), gen);
-    if (m.over) triggerStep('END_TURN');
+    if (m.over || !p.alive) triggerStep('END_TURN');
     return;
   }
 
@@ -4973,19 +5389,19 @@ async function executeSubModeTarget(info) {
       if (occ && occ.alive && !hitList.includes(occ)) hitList.push(occ);
     }
     for (const tgt of hitList) {
-      if (m.over || !tgt.alive) continue;
-      m.noteAttack(p, tgt);
+      if (m.over || !tgt.alive || m.isCmdProtected(p, tgt)) continue;
+      if (tgt !== p) m.noteAttack(p, tgt);
       m.log('💥 ' + m.pn(tgt) + ' 수류탄 폭발 피격!', 'combat');
       let taken = 1;
       if (tgt.isHuman && !playState.fastForward) {
-        taken = await askHumanDefense(tgt, p, 1, true, 1, '플라즈마 수류탄', gen);
+        taken = await askHumanDefense(tgt, p, 1, true, 1, '플라즈마 수류탄', gen, false);
       } else {
         taken = m.defend(tgt, p, 1, true) ? 0 : 1;
       }
       if (taken > 0) m.damagePlayer(tgt, 1, p, '플라즈마 수류탄');
     }
     playRender();
-    if (m.over) triggerStep('END_TURN');
+    if (m.over || !p.alive) triggerStep('END_TURN');
     return;
   }
 
@@ -5010,7 +5426,7 @@ async function executeSubModeTarget(info) {
     m.log('🌀 ' + m.pn(p) + ' [양자 도약] 가동 → (' + (p.r + 1) + ',' + (p.c + 1) + ') 순간이동!', 'move');
     await checkMineInteractive(p, gen);
     playRender();
-    if (m.over) triggerStep('END_TURN');
+    if (m.over || !p.alive) triggerStep('END_TURN');
     return;
   }
 
@@ -5024,7 +5440,7 @@ async function executeSubModeTarget(info) {
     await checkMineInteractive(p, gen);
     await checkMineInteractive(t, gen);
     playRender();
-    if (m.over) triggerStep('END_TURN');
+    if (m.over || !p.alive) triggerStep('END_TURN');
     return;
   }
 
@@ -5087,6 +5503,11 @@ async function executeSubModeTarget(info) {
     const t = info.target;
     if (info.mode === 'cuff_free') {
       t.cuffed = false;
+      if (t.role === 'COMMANDER' && p !== t) {
+        m.ev.sec[p.id] = Math.min(6, m.ev.sec[p.id] + 2);
+        m._evSeq = (m._evSeq || 0) + 1;
+        if (p.pub) p.pub.helpedCmd++;
+      }
       m.log('⚡🔓 ' + m.pn(p) + ' [EMP 칩] 가동: ' + m.pn(t) + '의 슈트 락다운 즉시 해제!', 'util');
     } else if (info.mode === 'weapon' && t && t.weapon) {
       m.noteAttack(p, t);
@@ -5138,6 +5559,7 @@ function showPlayNotice(msg) {
 
 function cancelSubMode() {
   playState.subMode = null;
+  playState.touchAim = null;
   playState.targetCells.clear();
   clearBlastPreview();
   $('playPrompt').classList.add('hidden');
@@ -5183,7 +5605,7 @@ function startMedicSelfSkill() {
   const m = playState.m, p = playState.human;
   if (!m || !p || m.tc.medicHeal) return;
   if (!m.canHeal()) { showPlayNotice('생존자 2인 이하 상황에서는 모든 회복 능력이 무효화됩니다.'); return; }
-  if (p.hp >= p.maxHp || p.hand.length < 2) { showPlayNotice('내구도가 이미 최대이거나 버릴 손패(2장)가 부족합니다.'); return; }
+  if (p.hp >= p.maxHp || p.hand.length < 2) { showPlayNotice('내구도가 이미 최대이거나 버릴 손패 2장이 부족합니다.'); return; }
   cancelSubMode();
   let firstIdx = -1;
   const pr = $('playPrompt');
@@ -5258,7 +5680,153 @@ function startTrapperSkill() {
   });
 }
 
-/* ---------- 렌더링 ---------- */
+/* ---------- 승무원 상세 조회 및 렌더링 ---------- */
+function getPublicBadgesHtml(p) {
+  if (!p || !p.pub) return '';
+  const b = [];
+  if (p.pub.hitCmd > 0) b.push('<span class="pub-tag reb">사령관 타격' + (p.pub.hitCmd > 1 ? ' ' + p.pub.hitCmd + '회' : '') + '</span>');
+  if (p.pub.helpedCmd > 0) b.push('<span class="pub-tag sec">사령관 지원' + (p.pub.helpedCmd > 1 ? ' ' + p.pub.helpedCmd + '회' : '') + '</span>');
+  if (p.pub.hitSus > 0) b.push('<span class="pub-tag sec">용의자 교전' + (p.pub.hitSus > 1 ? ' ' + p.pub.hitSus + '회' : '') + '</span>');
+  if (p.pub.scan > 0) b.push('<span class="pub-tag info">센서 정찰' + (p.pub.scan > 1 ? ' ' + p.pub.scan + '회' : '') + '</span>');
+  if (p.pub.hitAny > 0 && p.pub.hitCmd === 0 && p.pub.hitSus === 0) b.push('<span class="pub-tag spy">선제 교전 ' + p.pub.hitAny + '회</span>');
+  if (!b.length) b.push('<span class="pub-tag">미교전 탐색</span>');
+  return '<div class="pub-badges">' + b.join('') + '</div>';
+}
+
+function selectInspectPlayer(pid) {
+  playState.inspectId = pid;
+  playRenderBoardOnly();
+  renderPlayInspector();
+  if ($('playHud')) {
+    $('playHud').querySelectorAll('[data-hudpid]').forEach(el => {
+      el.classList.toggle('inspected', +el.dataset.hudpid === pid);
+    });
+  }
+}
+
+function renderPlayInspector() {
+  const card = $('playInspectCard');
+  const m = playState.m, h = playState.human;
+  if (!card) return;
+  if (!m || !h || playState.inspectId == null) {
+    card.classList.add('hidden');
+    return;
+  }
+  const tp = m.players.find(x => x.id === playState.inspectId);
+  if (!tp) {
+    card.classList.add('hidden');
+    return;
+  }
+  card.classList.remove('hidden');
+
+  const known = isRoleKnownToHuman(tp);
+  const showSecret = known || playState.inspectShowSecret;
+  const sideCol = showSecret ? COL[SIDE_OF(tp.role)] : 'var(--muted)';
+  const roleTxt = showSecret ? ROLE_KO[tp.role] : '정체 비공개';
+  const personaTxt = (!tp.isHuman && showSecret && tp.persona && PERSONA_KO[tp.persona])
+    ? '<span class="insp-role-pill" style="color:var(--text)">AI 성향 · ' + PERSONA_KO[tp.persona] + '</span>'
+    : '';
+
+  const tpRange = tp.alive
+    ? m.rangeOf(tp, tp.r, tp.c, false)
+    : (tp.weapon ? tp.weapon.range : (tp.ch.key === '거너' ? 2 : 1));
+
+  let weaponHtml = '';
+  if (tp.weapon) {
+    const wMeta = CARD_META[tp.weapon.name] || { desc: '사거리 ' + tp.weapon.range + '칸' };
+    weaponHtml = '<div class="insp-eq-item"><b style="color:var(--warn)">🔫 ' + tp.weapon.name + '</b><span>' + wMeta.desc + '</span></div>';
+  } else {
+    const baseDesc = tp.ch.key === '거너' ? '기본 사거리 2칸 · 인접 대상 무제한 연사' : '기본 사거리 1칸 · 단발 사격';
+    weaponHtml = '<div class="insp-eq-item"><b>🔫 기본 블래스터</b><span>' + baseDesc + '</span></div>';
+  }
+
+  const maxMod = tp.ch.key === '테크니션' ? 3 : 2;
+  let modHtml = '';
+  if (tp.modules && tp.modules.length) {
+    modHtml = tp.modules.map(mod => {
+      const mMeta = CARD_META[mod.name] || { desc: '보조 모듈' };
+      return '<div class="insp-eq-item"><b style="color:var(--sec)">🧩 ' + mod.name + '</b><span>' + mMeta.desc + '</span></div>';
+    }).join('');
+    if (tp.modules.length < maxMod) {
+      modHtml += '<div style="font-size:11px;color:var(--muted);padding-left:2px">보조 모듈 슬롯 ' + tp.modules.length + ' / ' + maxMod + ' 장착 중</div>';
+    }
+  } else {
+    modHtml = '<div class="insp-eq-item"><b style="color:var(--muted)">🧩 장착된 보조 모듈 없음</b><span>최대 ' + maxMod + '슬롯 장착 가능</span></div>';
+  }
+
+  let statusHtml = '';
+  if (tp.alive) {
+    const tName = { CORE: '중앙 코어', WALL: '강화 격벽', WEAPON: '무기고', MED: '응급 의무실', SENSOR: '보안 센서실', COVER: '에너지 엄폐막', N: '일반 통로' }[TERRAIN[tp.r][tp.c]] || '통로';
+    statusHtml += '<div>위치: <b>' + (tp.r + 1) + '행 ' + (tp.c + 1) + '열 · ' + tName + '</b></div>';
+    if (tp !== h && h.alive) {
+      const dist = manh(h.r, h.c, tp.r, tp.c);
+      const myRg = m.rangeOf(h, h.r, h.c, false);
+      const iCanShoot = m.canShoot(h.r, h.c, tp.r, tp.c, myRg, false, tp) && !m.isCmdProtected(h, tp);
+      const theyCanShoot = m.canShoot(tp.r, tp.c, h.r, h.c, tpRange, false, h) && !m.isCmdProtected(tp, h);
+      statusHtml += '<div style="margin-top:3px">내 위치와 거리 <b>' + dist + '칸</b> · ' +
+        (iCanShoot ? '<span style="color:var(--ok);font-weight:700">내 사격 가능</span>' : '<span style="color:var(--muted)">내 사선 밖</span>') + ' · ' +
+        (theyCanShoot ? '<span style="color:var(--reb);font-weight:700">상대 사격권 내</span>' : '<span style="color:var(--muted)">상대 사선 밖</span>') + '</div>';
+    }
+    if (tp.cuffed) statusHtml += '<div style="color:var(--core);font-weight:700;margin-top:3px">🔒 슈트 락다운 구속 상태</div>';
+  } else {
+    statusHtml += '<div style="color:var(--reb);font-weight:700">' + tp.deathRound + 'R 탈락 · ' + tp.cause + '</div>';
+  }
+  statusHtml += '<div style="margin-top:6px;padding-top:6px;border-top:1px solid var(--line);line-height:1.45"><b style="color:var(--text)">' + tp.ch.key + ' 특성:</b> <span style="color:var(--muted)">' + tp.ch.text + '</span></div>';
+  statusHtml += '<div style="margin-top:4px;font-size:11px;color:var(--muted)">전과: 처치 ' + tp.kills + '명 · 누적 가해 ' + tp.dmg + '</div>';
+
+  let handIntelHtml = '';
+  if (showSecret || tp.isHuman) {
+    handIntelHtml = '<div style="margin-top:5px;color:var(--text)">🃏 보유 손패: <b>' + (tp.hand.length ? tp.hand.map(c => c.name).join(', ') : '없음') + '</b></div>';
+  } else if (h.scan && h.scan[tp.id]) {
+    const sc = h.scan[tp.id];
+    handIntelHtml = '<div style="margin-top:5px;color:#c19cff">📡 ' + sc.round + 'R 센서 스캔 확인: <b>' + (sc.cards.length ? sc.cards.join(', ') : '빈손') + '</b></div>';
+  } else {
+    handIntelHtml = '<div style="margin-top:5px;color:var(--muted)">🃏 손패 구성 미확인 · 보안 센서실 스캔 또는 상단 비공개 역할 보기로 열람 가능</div>';
+  }
+
+  const rad = m.radios && m.radios[tp.id];
+  const radioHtml = rad ? '<div style="margin-top:4px;color:#93c5fd;font-size:11.5px">💬 최근 무전 · ' + rad.round + 'R: "' + rad.text.replace(/</g, '&lt;') + '"</div>' : '';
+
+  const secretBtnHtml = (!known && !tp.isHuman)
+    ? '<button class="btn btn-xs' + (playState.inspectShowSecret ? ' pri' : '') + '" id="bInspSecret">' + (playState.inspectShowSecret ? '비공개 역할 숨기기' : '비공개 역할 보기') + '</button>'
+    : '';
+
+  card.innerHTML =
+    '<div class="insp-head">' +
+      '<div class="insp-title">' +
+        '<span>' + (tp.isHuman ? '★ ' : '👤 ') + 'P' + tp.id + ' ' + tp.ch.key + '</span>' +
+        '<span class="insp-role-pill" style="color:' + sideCol + ';border-color:' + sideCol + '">' + roleTxt + '</span>' +
+        personaTxt +
+      '</div>' +
+      '<div style="display:flex;gap:6px;align-items:center">' +
+        secretBtnHtml +
+        '<button class="btn btn-xs" id="bInspClose">닫기</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="insp-grid">' +
+      '<div class="insp-box">' +
+        '<div class="ib-lbl"><span>장착 장비</span><span style="color:var(--ok)">유효 사거리 ' + tpRange + '칸</span></div>' +
+        '<div class="insp-eq">' + weaponHtml + modHtml + '</div>' +
+      '</div>' +
+      '<div class="insp-box">' +
+        '<div class="ib-lbl"><span>전투 상태 및 고유 능력</span><span>' + (tp.alive ? '내구도 ' + tp.hp + ' / ' + tp.maxHp : '탈락') + '</span></div>' +
+        statusHtml +
+      '</div>' +
+      '<div class="insp-box" style="grid-column:1/-1">' +
+        '<div class="ib-lbl"><span>공개 행적 및 손패 단서</span><span>손패 ' + tp.hand.length + '장</span></div>' +
+        getPublicBadgesHtml(tp) +
+        handIntelHtml +
+        radioHtml +
+      '</div>' +
+    '</div>';
+
+  if ($('bInspClose')) $('bInspClose').onclick = () => selectInspectPlayer(null);
+  if ($('bInspSecret')) $('bInspSecret').onclick = () => {
+    playState.inspectShowSecret = !playState.inspectShowSecret;
+    renderPlayInspector();
+  };
+}
+
 function playRenderBoardOnly() {
   const m = playState.m, h = playState.human;
   if (!m) return;
@@ -5280,7 +5848,10 @@ function playRenderBoardOnly() {
       const known = isRoleKnownToHuman(p);
       const sideCol = known ? COL[SIDE_OF(p.role)] : '#7d8896';
       const isMe = h && p.id === h.id;
-      el.innerHTML = '<div class="tok' + (!m.over && p === cur ? ' act' : '') + (isMe ? ' me' : '') + '" data-hp="' + p.hp + '" style="background:' + sideCol + '" title="P' + p.id + ' ' + p.ch.key + (isMe ? ' (나)' : '') + '">' + (isMe ? '★' + p.id : p.id) + '</div>';
+      const isInsp = playState.inspectId === p.id;
+      const rad = m.radios && m.radios[p.id];
+      const hasChat = !!(rad && (m.turnCount - rad.tc) <= m.n);
+      el.innerHTML = '<div class="tok' + (!m.over && p === cur ? ' act' : '') + (isMe ? ' me' : '') + (isInsp ? ' inspected' : '') + '" data-hp="' + p.hp + '" style="background:' + sideCol + '" title="클릭하여 P' + p.id + ' ' + p.ch.key + ' 역할 및 장착 장비 조회">' + (hasChat ? '<span class="tok-chat">💬</span>' : '') + (isMe ? '★' + p.id : p.id) + '</div>';
     } else {
       const hasMine = m.mines && m.mines.some(mine => mine.r === r && mine.c === c);
       if (hasMine) {
@@ -5297,6 +5868,19 @@ function playRender() {
   const m = playState.m, h = playState.human;
   if (!m || !h) return;
   playRenderBoardOnly();
+
+  // 최신 실시간 무전 배너 갱신
+  const rb = $('playRadioBar');
+  if (rb) {
+    if (m.lastRadio) {
+      const lr = m.lastRadio;
+      rb.className = 'radio-bar' + (lr.tone === 'warn' ? ' warn' : lr.tone === 'ok' ? ' ok' : '');
+      rb.innerHTML = '<span class="rb-who">📻 ' + lr.who + ' · ' + lr.round + 'R</span><span class="rb-txt">"' + lr.text.replace(/</g, '&lt;') + '"</span>';
+    } else {
+      rb.className = 'radio-bar hidden';
+      rb.innerHTML = '';
+    }
+  }
 
   const cur = m.players[m.turn];
   const phaseKo = {
@@ -5364,16 +5948,8 @@ function playRender() {
     if ($('bActSkipTurn')) $('bActSkipTurn').onclick = () => { cancelSubMode(); triggerStep('END_TURN'); };
     bindCharSkillButtons();
   } else if (playState.phase === 'MOVE') {
-    let btns = '<button class="btn pri" id="bActStay">현재 위치 대기</button>';
-    if ((playState.moveRaw === 1 || playState.moveRaw === 2) && h.ch.key !== '뱅가드' && !playState.moveBoosted && h.hand.length > 0) {
-      btns += '<button class="btn" id="bActBoost">🚀 추진 부스터 발동</button>';
-    }
-    actBar.innerHTML = btns;
+    actBar.innerHTML = '<button class="btn pri" id="bActStay">현재 위치 대기</button>';
     $('bActStay').onclick = () => triggerStep({ type: 'MOVED', r: h.r, c: h.c });
-    if ($('bActBoost')) $('bActBoost').onclick = () => {
-      playState.subMode = { type: 'BOOST_DISCARD' };
-      showPlayNotice('🚀 추진 부스터: 손패에서 버릴 카드 1장을 클릭하면 기본 이동 거리가 3칸으로 변경됩니다.');
-    };
   } else if (playState.phase === 'POST_ACTION') {
     let btns = '<button class="btn pri" id="bActEnd">✅ 턴 종료</button>';
     btns += renderCharSkillButtons(h);
@@ -5393,7 +5969,7 @@ function playRender() {
   const unlTxt = (h.weapon && h.weapon.burst) ? '무제한' : (h.ch.key === '거너' ? '인접 무제한' : maxLasers + '회');
   $('playTurnCounters').textContent = '이번 턴 사격: 레이저 ' + m.tc.lasers + '/' + unlTxt + ' · 넉백 ' + m.tc.knocks + '/1 · 그랩 ' + m.tc.grabs + '/1';
 
-  const canPlayCards = cur.isHuman && (playState.phase === 'PRE_ACTION' || playState.phase === 'POST_ACTION' || playState.phase === 'CLEANUP' || (playState.phase === 'MOVE' && playState.subMode && playState.subMode.type === 'BOOST_DISCARD'));
+  const canPlayCards = cur.isHuman && (playState.phase === 'PRE_ACTION' || playState.phase === 'POST_ACTION' || playState.phase === 'CLEANUP');
   $('playHand').innerHTML = h.hand.map((c, idx) => {
     const meta = CARD_META[c.name] || { tag: '전술', col: 'var(--sec)', desc: '' };
     const isSel = playState.subMode && playState.subMode.cardIdx === idx;
@@ -5407,6 +5983,8 @@ function playRender() {
     el.onclick = () => onHandCardClick(+el.dataset.hcidx);
   });
 
+  renderPlayInspector();
+
   // 전체 승무원 HUD 렌더링 (실전 시야 적용)
   const openVision = $('pVision').value === 'open' || m.over;
   $('playHud').innerHTML = m.players.map(p => {
@@ -5418,13 +5996,23 @@ function playRender() {
     const scanInfo = h.scan && h.scan[p.id];
     const scanHtml = scanInfo ? '<div class="intel-tag">📡 ' + scanInfo.round + 'R 스캔: ' + (scanInfo.cards.length ? scanInfo.cards.join(', ') : '빈손') + '</div>' : '';
     const openHandHtml = (openVision && p.alive && !p.isHuman && p.hand.length) ? '<div style="font-size:10.5px;color:var(--muted);margin-top:2px">패: ' + p.hand.map(c => c.name).join(', ') + '</div>' : '';
-    return '<div class="pc' + (p.alive ? '' : ' dead') + (p.isHuman ? ' me-card' : '') + '" style="border-left-color:' + sideCol + '" title="' + p.ch.key + ': ' + p.ch.text + '">' +
+    const isInsp = playState.inspectId === p.id;
+    return '<div class="pc' + (p.alive ? '' : ' dead') + (p.isHuman ? ' me-card' : '') + (isInsp ? ' inspected' : '') + '" data-hudpid="' + p.id + '" style="border-left-color:' + sideCol + ';cursor:pointer" title="클릭하여 ' + p.ch.key + ' 역할 및 장착 장비 조회">' +
       '<div class="top"><span>' + (p.isHuman ? '★ ' : '') + 'P' + p.id + ' ' + p.ch.key + '</span><span style="color:' + (known ? sideCol : 'var(--muted)') + '">' + roleTxt + '</span></div>' +
       '<div class="pips">' + pips + '</div>' +
       '<small>' + (p.alive ? (p.r + 1) + '행 ' + (p.c + 1) + '열 · ' + (p.weapon ? p.weapon.name : '기본 무기') + (p.modules && p.modules.length ? ' · ' + p.modules.map(x => x.name).join('+') : '') + (p.cuffed ? ' · 🔒구속' : '') + ' · 손패 ' + p.hand.length + '장' : '탈락 · ' + p.cause) + '</small>' +
+      getPublicBadgesHtml(p) +
       scanHtml + openHandHtml +
     '</div>';
   }).join('');
+  $('playHud').querySelectorAll('[data-hudpid]').forEach(el => {
+    el.onclick = () => {
+      const tp = m.players.find(x => x.id === +el.dataset.hudpid);
+      if (!tp) return;
+      selectInspectPlayer(playState.inspectId === tp.id ? null : tp.id);
+      $('playHoverInfo').textContent = '👤 P' + tp.id + ' ' + tp.ch.key + ' · 고유 능력: ' + tp.ch.text;
+    };
+  });
 
   // 전투 로그 렌더링 (실전 시야에서는 타인의 비공개 드로우/스캔 카드명 마스킹)
   const lb = $('playLog');
@@ -5432,7 +6020,9 @@ function playRender() {
   const myTag = m.pn(h);
   lb.innerHTML = m.logs.slice(from).map(l => {
     let txt = l.t;
-    if (!openVision && !txt.includes(myTag)) {
+    const tagPos = txt.indexOf(myTag);
+    const isMyAct = tagPos >= 0 && tagPos <= 4;
+    if (!openVision && !isMyAct) {
       if (txt.includes('긴급 탄약 전송:')) {
         txt = txt.replace(/\[[^\]]+\] 자동 드로우!/, '전술 카드 1장 자동 드로우!');
       } else if (txt.includes('전술 연산 예측:')) {
